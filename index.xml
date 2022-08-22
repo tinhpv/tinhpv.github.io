@@ -2,26 +2,26 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Aaron V. Phan</title>
-    <link>https://notebyaaron.github.io/</link>
+    <link>/</link>
     <description>Recent content on Aaron V. Phan</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 23 Aug 2022 00:41:36 +0700</lastBuildDate><atom:link href="https://notebyaaron.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 23 Aug 2022 00:41:36 +0700</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Grand Central Dispatch</title>
-      <link>https://notebyaaron.github.io/posts/grand-central-dispatch/</link>
+      <link>/posts/grand-central-dispatch/</link>
       <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://notebyaaron.github.io/posts/grand-central-dispatch/</guid>
+      <guid>/posts/grand-central-dispatch/</guid>
       <description>Overview GCD helps to write multi-threaded code, create threads and schedule tasks on those threads. Main building block: Dispatch Queues, 3 types of queues: Main dispatch queue (serial, pre-defined) drawing app&amp;rsquo;s UI 🎨 handle events (e.g. user interaction) block it for too long, app will freeze 🥶 Global queue (concurrent, pre-defined) Private queue (can be serial/concurrent optionally, serial by default) Usage:
 Making a network call, which takes a long time in background queue When it completes, updating UI on main thread.</description>
     </item>
     
     <item>
       <title>Note on UserDefaults</title>
-      <link>https://notebyaaron.github.io/posts/note-on-user-default/</link>
+      <link>/posts/note-on-user-default/</link>
       <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://notebyaaron.github.io/posts/note-on-user-default/</guid>
+      <guid>/posts/note-on-user-default/</guid>
       <description>UserDefaults Preferences are grouped into domains, they can be persistent or volatile
 persistent 👉🏻 stored on memory, not losing when re-boot the app viatile 👉🏻 only valid along UserDefaults instance lifetime. Domain State NSArgumentDomain volatile Application (identified by app&amp;rsquo;s identifier) persistent NSGlobalDomain persistent Languages (identified by language names) volatile NSRegistrationDomain volatile a preference has 3 components:
 domain in which is is stored name (String) value (Data, String, Number, Date, Array, Dictionary) Whenever retrieving value for a key, a search for value of a given key will go through the domain hierarchy above from top to bottom starting with NSArgumentDomain and return the first value it found</description>

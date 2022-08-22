@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://notebyaaron.github.io/</loc>
+    <lastmod>2022-08-23T00:41:36+07:00</lastmod>
+  </url><url>
+    <loc>https://notebyaaron.github.io/posts/grand-central-dispatch/</loc>
+    <lastmod>2022-08-23T00:41:36+07:00</lastmod>
+  </url><url>
+    <loc>https://notebyaaron.github.io/posts/note-on-user-default/</loc>
+    <lastmod>2022-08-23T00:41:36+07:00</lastmod>
+  </url><url>
+    <loc>https://notebyaaron.github.io/posts/</loc>
+    <lastmod>2022-08-23T00:41:36+07:00</lastmod>
+  </url><url>
+    <loc>https://notebyaaron.github.io/categories/</loc>
+  </url><url>
+    <loc>https://notebyaaron.github.io/tags/</loc>
+  </url>
+</urlset>

@@ -164,6 +164,26 @@ Making a network call, which takes a long time in background queue When it compl
 
     </div>
     
+    <div id="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#serial-queue">Serial queue</a></li>
+        <li><a href="#syncasync-vs-concurrentserial">sync/async vs. concurrent/serial</a></li>
+        <li><a href="#priority-inversion">Priority Inversion</a></li>
+        <li><a href="#thread-explosion">Thread explosion</a></li>
+        <li><a href="#race-condition-solved-by-dispatch-barrier">Race Condition, Solved By Dispatch Barrier</a></li>
+        <li><a href="#dispatch-semaphore">Dispatch Semaphore</a></li>
+        <li><a href="#dispatchgroup">DispatchGroup</a></li>
+        <li><a href="#summary---pros-and-cons">Summary - pros and cons</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
   </span>
 </div>
 
@@ -194,26 +214,6 @@ Making a network call, which takes a long time in background queue When it compl
     </header>
 
   
-    
-    <div id="toc">
-      <nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#overview">Overview</a></li>
-        <li><a href="#serial-queue">Serial queue</a></li>
-        <li><a href="#syncasync-vs-concurrentserial">sync/async vs. concurrent/serial</a></li>
-        <li><a href="#priority-inversion">Priority Inversion</a></li>
-        <li><a href="#thread-explosion">Thread explosion</a></li>
-        <li><a href="#race-condition-solved-by-dispatch-barrier">Race Condition, Solved By Dispatch Barrier</a></li>
-        <li><a href="#dispatch-semaphore">Dispatch Semaphore</a></li>
-        <li><a href="#dispatchgroup">DispatchGroup</a></li>
-        <li><a href="#summary---pros-and-cons">Summary - pros and cons</a></li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-    </div>
     
     <div class="content" itemprop="articleBody">
       <h3 id="overview">Overview</h3>
@@ -711,6 +711,26 @@ but then we would lose the advantage of having concurrent read access to the arr
     </div>
 
     
+    <div id="toc-footer" style="display: none">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#serial-queue">Serial queue</a></li>
+        <li><a href="#syncasync-vs-concurrentserial">sync/async vs. concurrent/serial</a></li>
+        <li><a href="#priority-inversion">Priority Inversion</a></li>
+        <li><a href="#thread-explosion">Thread explosion</a></li>
+        <li><a href="#race-condition-solved-by-dispatch-barrier">Race Condition, Solved By Dispatch Barrier</a></li>
+        <li><a href="#dispatch-semaphore">Dispatch Semaphore</a></li>
+        <li><a href="#dispatchgroup">DispatchGroup</a></li>
+        <li><a href="#summary---pros-and-cons">Summary - pros and cons</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
 
     <div id="share-footer" style="display: none">
       
@@ -773,6 +793,9 @@ but then we would lose the advantage of having concurrent read access to the arr
       
         <a id="menu-toggle" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;" aria-label="Menu">
           <i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="toc-toggle" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;" aria-label="TOC">
+          <i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
         
         <a id="share-toggle" class="icon" href="#" onclick="$('#share-footer').toggle();return false;" aria-label="Share">
           <i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> share</a>

@@ -10,7 +10,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title> Grand Central Dispatch | Aaron V. Phan</title>
-  <link rel = 'canonical' href = '/posts/grand-central-dispatch/'>
+  <link rel = 'canonical' href = 'https://tinhpv.github.io/posts/grand-central-dispatch/'>
   <meta name="description" content="Hugo is a general-purpose website framework. Technically speaking, Hugo is a static site generator. Unlike systems that dynamically build a page with each visitor request, Hugo builds pages when you create or update your content. Since websites are viewed far more often than they are edited, Hugo is designed to provide an optimal viewing experience for your website’s end users and an ideal writing experience for website authors.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="all,follow">
@@ -19,7 +19,7 @@
 <meta property="og:description" content="Overview GCD helps to write multi-threaded code, create threads and schedule tasks on those threads. Main building block: Dispatch Queues, 3 types of queues: Main dispatch queue (serial, pre-defined) drawing app&rsquo;s UI 🎨 handle events (e.g. user interaction) block it for too long, app will freeze 🥶 Global queue (concurrent, pre-defined) Private queue (can be serial/concurrent optionally, serial by default) Usage:
 Making a network call, which takes a long time in background queue When it completes, updating UI on main thread." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/grand-central-dispatch/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://tinhpv.github.io/posts/grand-central-dispatch/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-08-23T00:41:36+07:00" />
 <meta property="article:modified_time" content="2022-08-23T00:41:36+07:00" />
 
@@ -34,7 +34,7 @@ Making a network call, which takes a long time in background queue When it compl
     
   
   
-  <link rel="stylesheet" href="/css/styles.c05d68261bf086a9d7713c4f8a6215a3601608e267a816a7ee58f139b3d1aae51222aae2081c8e0c6bd35e1334773b7a16283022f31f92afd93bb37e5e822e66.css" integrity="sha512-wF1oJhvwhqnXcTxPimIVo2AWCOJnqBan7ljxObPRquUSIqriCByODGvTXhM0dzt6FigwIvMfkq/ZO7N&#43;XoIuZg=="> 
+  <link rel="stylesheet" href="https://tinhpv.github.io/css/styles.c05d68261bf086a9d7713c4f8a6215a3601608e267a816a7ee58f139b3d1aae51222aae2081c8e0c6bd35e1334773b7a16283022f31f92afd93bb37e5e822e66.css" integrity="sha512-wF1oJhvwhqnXcTxPimIVo2AWCOJnqBan7ljxObPRquUSIqriCByODGvTXhM0dzt6FigwIvMfkq/ZO7N&#43;XoIuZg=="> 
 
   
   
@@ -46,7 +46,7 @@ Making a network call, which takes a long time in background queue When it compl
   
 
   
-<link rel="icon" type="image/png" href="/images/favicon.ico" />
+<link rel="icon" type="image/png" href="https://tinhpv.github.io/images/favicon.ico" />
 
   
   
@@ -78,7 +78,7 @@ Making a network call, which takes a long time in background queue When it compl
       <ul>
         
         <li>
-          <a class="icon" href=" /posts/note-on-user-default/" aria-label="Previous">
+          <a class="icon" href=" https://tinhpv.github.io/posts/note-on-user-default/" aria-label="Previous">
             <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
           </a>
         </li>
@@ -110,47 +110,47 @@ Making a network call, which takes a long time in background queue When it compl
   
   
   <li>
-    <a class="icon" href="http://www.facebook.com/sharer.php?u=%2fposts%2fgrand-central-dispatch%2f" aria-label="Facebook">
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f" aria-label="Facebook">
       <i class="fab fa-facebook " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://twitter.com/share?url=%2fposts%2fgrand-central-dispatch%2f&text=Grand%20Central%20Dispatch" aria-label="Twitter">
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&text=Grand%20Central%20Dispatch" aria-label="Twitter">
       <i class="fab fa-twitter " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.linkedin.com/shareArticle?url=%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Linkedin">
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Linkedin">
       <i class="fab fa-linkedin " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=%2fposts%2fgrand-central-dispatch%2f&is_video=false&description=Grand%20Central%20Dispatch" aria-label="Pinterest">
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&is_video=false&description=Grand%20Central%20Dispatch" aria-label="Pinterest">
       <i class="fab fa-pinterest " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="mailto:?subject=Grand%20Central%20Dispatch&body=Check out this article: %2fposts%2fgrand-central-dispatch%2f" aria-label="Email">
+    <a class="icon" href="mailto:?subject=Grand%20Central%20Dispatch&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f" aria-label="Email">
       <i class="fas fa-envelope " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://getpocket.com/save?url=%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Pocket">
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Pocket">
       <i class="fab fa-get-pocket " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://reddit.com/submit?url=%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="reddit">
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="reddit">
       <i class="fab fa-reddit " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=%2fposts%2fgrand-central-dispatch%2f&name=Grand%20Central%20Dispatch&description=Overview%20GCD%20helps%20to%20write%20multi-threaded%20code%2c%20create%20threads%20and%20schedule%20tasks%20on%20those%20threads.%20Main%20building%20block%3a%20Dispatch%20Queues%2c%203%20types%20of%20queues%3a%20Main%20dispatch%20queue%20%28serial%2c%20pre-defined%29%20drawing%20app%26rsquo%3bs%20UI%20%f0%9f%8e%a8%20handle%20events%20%28e.g.%20user%20interaction%29%20block%20it%20for%20too%20long%2c%20app%20will%20freeze%20%f0%9f%a5%b6%20Global%20queue%20%28concurrent%2c%20pre-defined%29%20Private%20queue%20%28can%20be%20serial%2fconcurrent%20optionally%2c%20serial%20by%20default%29%20Usage%3a%0aMaking%20a%20network%20call%2c%20which%20takes%20a%20long%20time%20in%20background%20queue%20When%20it%20completes%2c%20updating%20UI%20on%20main%20thread." aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&name=Grand%20Central%20Dispatch&description=Overview%20GCD%20helps%20to%20write%20multi-threaded%20code%2c%20create%20threads%20and%20schedule%20tasks%20on%20those%20threads.%20Main%20building%20block%3a%20Dispatch%20Queues%2c%203%20types%20of%20queues%3a%20Main%20dispatch%20queue%20%28serial%2c%20pre-defined%29%20drawing%20app%26rsquo%3bs%20UI%20%f0%9f%8e%a8%20handle%20events%20%28e.g.%20user%20interaction%29%20block%20it%20for%20too%20long%2c%20app%20will%20freeze%20%f0%9f%a5%b6%20Global%20queue%20%28concurrent%2c%20pre-defined%29%20Private%20queue%20%28can%20be%20serial%2fconcurrent%20optionally%2c%20serial%20by%20default%29%20Usage%3a%0aMaking%20a%20network%20call%2c%20which%20takes%20a%20long%20time%20in%20background%20queue%20When%20it%20completes%2c%20updating%20UI%20on%20main%20thread." aria-label="Tumblr">
       <i class="fab fa-tumblr " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://news.ycombinator.com/submitlink?u=%2fposts%2fgrand-central-dispatch%2f&t=Grand%20Central%20Dispatch" aria-label="Hacker News">
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&t=Grand%20Central%20Dispatch" aria-label="Hacker News">
       <i class="fab fa-hacker-news " aria-hidden="true"></i>
     </a>
   </li>
@@ -715,47 +715,47 @@ but then we would lose the advantage of having concurrent read access to the arr
   
   
   <li>
-    <a class="icon" href="http://www.facebook.com/sharer.php?u=%2fposts%2fgrand-central-dispatch%2f" aria-label="Facebook">
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f" aria-label="Facebook">
       <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://twitter.com/share?url=%2fposts%2fgrand-central-dispatch%2f&text=Grand%20Central%20Dispatch" aria-label="Twitter">
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&text=Grand%20Central%20Dispatch" aria-label="Twitter">
       <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.linkedin.com/shareArticle?url=%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Linkedin">
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Linkedin">
       <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=%2fposts%2fgrand-central-dispatch%2f&is_video=false&description=Grand%20Central%20Dispatch" aria-label="Pinterest">
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&is_video=false&description=Grand%20Central%20Dispatch" aria-label="Pinterest">
       <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="mailto:?subject=Grand%20Central%20Dispatch&body=Check out this article: %2fposts%2fgrand-central-dispatch%2f" aria-label="Email">
+    <a class="icon" href="mailto:?subject=Grand%20Central%20Dispatch&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f" aria-label="Email">
       <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://getpocket.com/save?url=%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Pocket">
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Pocket">
       <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://reddit.com/submit?url=%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="reddit">
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="reddit">
       <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=%2fposts%2fgrand-central-dispatch%2f&name=Grand%20Central%20Dispatch&description=Overview%20GCD%20helps%20to%20write%20multi-threaded%20code%2c%20create%20threads%20and%20schedule%20tasks%20on%20those%20threads.%20Main%20building%20block%3a%20Dispatch%20Queues%2c%203%20types%20of%20queues%3a%20Main%20dispatch%20queue%20%28serial%2c%20pre-defined%29%20drawing%20app%26rsquo%3bs%20UI%20%f0%9f%8e%a8%20handle%20events%20%28e.g.%20user%20interaction%29%20block%20it%20for%20too%20long%2c%20app%20will%20freeze%20%f0%9f%a5%b6%20Global%20queue%20%28concurrent%2c%20pre-defined%29%20Private%20queue%20%28can%20be%20serial%2fconcurrent%20optionally%2c%20serial%20by%20default%29%20Usage%3a%0aMaking%20a%20network%20call%2c%20which%20takes%20a%20long%20time%20in%20background%20queue%20When%20it%20completes%2c%20updating%20UI%20on%20main%20thread." aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&name=Grand%20Central%20Dispatch&description=Overview%20GCD%20helps%20to%20write%20multi-threaded%20code%2c%20create%20threads%20and%20schedule%20tasks%20on%20those%20threads.%20Main%20building%20block%3a%20Dispatch%20Queues%2c%203%20types%20of%20queues%3a%20Main%20dispatch%20queue%20%28serial%2c%20pre-defined%29%20drawing%20app%26rsquo%3bs%20UI%20%f0%9f%8e%a8%20handle%20events%20%28e.g.%20user%20interaction%29%20block%20it%20for%20too%20long%2c%20app%20will%20freeze%20%f0%9f%a5%b6%20Global%20queue%20%28concurrent%2c%20pre-defined%29%20Private%20queue%20%28can%20be%20serial%2fconcurrent%20optionally%2c%20serial%20by%20default%29%20Usage%3a%0aMaking%20a%20network%20call%2c%20which%20takes%20a%20long%20time%20in%20background%20queue%20When%20it%20completes%2c%20updating%20UI%20on%20main%20thread." aria-label="Tumblr">
       <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://news.ycombinator.com/submitlink?u=%2fposts%2fgrand-central-dispatch%2f&t=Grand%20Central%20Dispatch" aria-label="Hacker News">
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fgrand-central-dispatch%2f&t=Grand%20Central%20Dispatch" aria-label="Hacker News">
       <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
     </a>
   </li>

@@ -22,7 +22,7 @@ This blog was made to learn and to share.">
   <meta name="robots" content="all,follow">
   <meta name="googlebot" content="index,follow,snippet,archive">
   <meta property="og:title" content="Note on UserDefaults" />
-<meta property="og:description" content="UserDefaults Preferences are grouped into domains, they can be persistent or volatile
+<meta property="og:description" content="Preferences are grouped into domains, they can be persistent or volatile
 persistent 👉🏻 stored on memory, not losing when re-boot the app viatile 👉🏻 only valid along UserDefaults instance lifetime. Domain State NSArgumentDomain volatile Application (identified by app&rsquo;s identifier) persistent NSGlobalDomain persistent Languages (identified by language names) volatile NSRegistrationDomain volatile a preference has 3 components:
 domain in which is is stored name (String) value (Data, String, Number, Date, Array, Dictionary) Whenever retrieving value for a key, a search for value of a given key will go through the domain hierarchy above from top to bottom starting with NSArgumentDomain and return the first value it found" />
 <meta property="og:type" content="article" />
@@ -33,7 +33,7 @@ domain in which is is stored name (String) value (Data, String, Number, Date, Ar
 
   <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Note on UserDefaults"/>
-<meta name="twitter:description" content="UserDefaults Preferences are grouped into domains, they can be persistent or volatile
+<meta name="twitter:description" content="Preferences are grouped into domains, they can be persistent or volatile
 persistent 👉🏻 stored on memory, not losing when re-boot the app viatile 👉🏻 only valid along UserDefaults instance lifetime. Domain State NSArgumentDomain volatile Application (identified by app&rsquo;s identifier) persistent NSGlobalDomain persistent Languages (identified by language names) volatile NSRegistrationDomain volatile a preference has 3 components:
 domain in which is is stored name (String) value (Data, String, Number, Date, Array, Dictionary) Whenever retrieving value for a key, a search for value of a given key will go through the domain hierarchy above from top to bottom starting with NSArgumentDomain and return the first value it found"/>
 
@@ -84,6 +84,12 @@ domain in which is is stored name (String) value (Data, String, Number, Date, Ar
     <br/>
     <span id="actions">
       <ul>
+        
+        <li>
+          <a class="icon" href=" https://tinhpv.github.io/posts/concurrency-with-actor-swift/" aria-label="Previous">
+            <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
+          </a>
+        </li>
         
         
         <li>
@@ -153,7 +159,7 @@ domain in which is is stored name (String) value (Data, String, Number, Date, Ar
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fnote-on-user-default%2f&name=Note%20on%20UserDefaults&description=UserDefaults%20Preferences%20are%20grouped%20into%20domains%2c%20they%20can%20be%20persistent%20or%20volatile%0apersistent%20%f0%9f%91%89%f0%9f%8f%bb%20stored%20on%20memory%2c%20not%20losing%20when%20re-boot%20the%20app%20viatile%20%f0%9f%91%89%f0%9f%8f%bb%20only%20valid%20along%20UserDefaults%20instance%20lifetime.%20Domain%20State%20NSArgumentDomain%20volatile%20Application%20%28identified%20by%20app%26rsquo%3bs%20identifier%29%20persistent%20NSGlobalDomain%20persistent%20Languages%20%28identified%20by%20language%20names%29%20volatile%20NSRegistrationDomain%20volatile%20a%20preference%20has%203%20components%3a%0adomain%20in%20which%20is%20is%20stored%20name%20%28String%29%20value%20%28Data%2c%20String%2c%20Number%2c%20Date%2c%20Array%2c%20Dictionary%29%20Whenever%20retrieving%20value%20for%20a%20key%2c%20a%20search%20for%20value%20of%20a%20given%20key%20will%20go%20through%20the%20domain%20hierarchy%20above%20from%20top%20to%20bottom%20starting%20with%20NSArgumentDomain%20and%20return%20the%20first%20value%20it%20found" aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fnote-on-user-default%2f&name=Note%20on%20UserDefaults&description=Preferences%20are%20grouped%20into%20domains%2c%20they%20can%20be%20persistent%20or%20volatile%0apersistent%20%f0%9f%91%89%f0%9f%8f%bb%20stored%20on%20memory%2c%20not%20losing%20when%20re-boot%20the%20app%20viatile%20%f0%9f%91%89%f0%9f%8f%bb%20only%20valid%20along%20UserDefaults%20instance%20lifetime.%20Domain%20State%20NSArgumentDomain%20volatile%20Application%20%28identified%20by%20app%26rsquo%3bs%20identifier%29%20persistent%20NSGlobalDomain%20persistent%20Languages%20%28identified%20by%20language%20names%29%20volatile%20NSRegistrationDomain%20volatile%20a%20preference%20has%203%20components%3a%0adomain%20in%20which%20is%20is%20stored%20name%20%28String%29%20value%20%28Data%2c%20String%2c%20Number%2c%20Date%2c%20Array%2c%20Dictionary%29%20Whenever%20retrieving%20value%20for%20a%20key%2c%20a%20search%20for%20value%20of%20a%20given%20key%20will%20go%20through%20the%20domain%20hierarchy%20above%20from%20top%20to%20bottom%20starting%20with%20NSArgumentDomain%20and%20return%20the%20first%20value%20it%20found" aria-label="Tumblr">
       <i class="fab fa-tumblr " aria-hidden="true"></i>
     </a>
   </li>
@@ -214,8 +220,7 @@ domain in which is is stored name (String) value (Data, String, Number, Date, Ar
   
     
     <div class="content" itemprop="articleBody">
-      <h1 id="userdefaults">UserDefaults</h1>
-<p>Preferences are grouped into <strong>domains</strong>, they can be <strong>persistent</strong> or <strong>volatile</strong></p>
+      <p>Preferences are grouped into <strong>domains</strong>, they can be <strong>persistent</strong> or <strong>volatile</strong></p>
 <ul>
 <li><em>persistent</em> 👉🏻 stored on memory, not losing when re-boot the app</li>
 <li><em>viatile</em> 👉🏻 only valid along UserDefaults instance lifetime.</li>
@@ -400,7 +405,7 @@ domain in which is is stored name (String) value (Data, String, Number, Date, Ar
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fnote-on-user-default%2f&name=Note%20on%20UserDefaults&description=UserDefaults%20Preferences%20are%20grouped%20into%20domains%2c%20they%20can%20be%20persistent%20or%20volatile%0apersistent%20%f0%9f%91%89%f0%9f%8f%bb%20stored%20on%20memory%2c%20not%20losing%20when%20re-boot%20the%20app%20viatile%20%f0%9f%91%89%f0%9f%8f%bb%20only%20valid%20along%20UserDefaults%20instance%20lifetime.%20Domain%20State%20NSArgumentDomain%20volatile%20Application%20%28identified%20by%20app%26rsquo%3bs%20identifier%29%20persistent%20NSGlobalDomain%20persistent%20Languages%20%28identified%20by%20language%20names%29%20volatile%20NSRegistrationDomain%20volatile%20a%20preference%20has%203%20components%3a%0adomain%20in%20which%20is%20is%20stored%20name%20%28String%29%20value%20%28Data%2c%20String%2c%20Number%2c%20Date%2c%20Array%2c%20Dictionary%29%20Whenever%20retrieving%20value%20for%20a%20key%2c%20a%20search%20for%20value%20of%20a%20given%20key%20will%20go%20through%20the%20domain%20hierarchy%20above%20from%20top%20to%20bottom%20starting%20with%20NSArgumentDomain%20and%20return%20the%20first%20value%20it%20found" aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fnote-on-user-default%2f&name=Note%20on%20UserDefaults&description=Preferences%20are%20grouped%20into%20domains%2c%20they%20can%20be%20persistent%20or%20volatile%0apersistent%20%f0%9f%91%89%f0%9f%8f%bb%20stored%20on%20memory%2c%20not%20losing%20when%20re-boot%20the%20app%20viatile%20%f0%9f%91%89%f0%9f%8f%bb%20only%20valid%20along%20UserDefaults%20instance%20lifetime.%20Domain%20State%20NSArgumentDomain%20volatile%20Application%20%28identified%20by%20app%26rsquo%3bs%20identifier%29%20persistent%20NSGlobalDomain%20persistent%20Languages%20%28identified%20by%20language%20names%29%20volatile%20NSRegistrationDomain%20volatile%20a%20preference%20has%203%20components%3a%0adomain%20in%20which%20is%20is%20stored%20name%20%28String%29%20value%20%28Data%2c%20String%2c%20Number%2c%20Date%2c%20Array%2c%20Dictionary%29%20Whenever%20retrieving%20value%20for%20a%20key%2c%20a%20search%20for%20value%20of%20a%20given%20key%20will%20go%20through%20the%20domain%20hierarchy%20above%20from%20top%20to%20bottom%20starting%20with%20NSArgumentDomain%20and%20return%20the%20first%20value%20it%20found" aria-label="Tumblr">
       <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
     </a>
   </li>

@@ -26,17 +26,6 @@ Making a network call, which takes a long time in background queue When it compl
     </item>
     
     <item>
-      <title>Note on UserDefaults</title>
-      <link>https://tinhpv.github.io/posts/note-on-user-default/</link>
-      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
-      
-      <guid>https://tinhpv.github.io/posts/note-on-user-default/</guid>
-      <description>Preferences are grouped into domains, they can be persistent or volatile
-persistent 👉🏻 stored on memory, not losing when re-boot the app viatile 👉🏻 only valid along UserDefaults instance lifetime. Domain State NSArgumentDomain volatile Application (identified by app&amp;rsquo;s identifier) persistent NSGlobalDomain persistent Languages (identified by language names) volatile NSRegistrationDomain volatile a preference has 3 components:
-domain in which is is stored name (String) value (Data, String, Number, Date, Array, Dictionary) Whenever retrieving value for a key, a search for value of a given key will go through the domain hierarchy above from top to bottom starting with NSArgumentDomain and return the first value it found</description>
-    </item>
-    
-    <item>
       <title>Concurrency using Actor</title>
       <link>https://tinhpv.github.io/posts/concurrency-with-actor-swift/</link>
       <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
@@ -63,6 +52,18 @@ domain in which is is stored name (String) value (Data, String, Number, Date, Ar
       <guid>https://tinhpv.github.io/posts/race-condition-vs-data-race/</guid>
       <description>What are they? Matters? 🤔🆘 Data Race and Race Condition are DIFFERENT
 Data-Race → MORE than 1 thread access to shared-resource (can be a variable or object) and AT LEAST 1 thread tries to modify that resource Race-Condition → Order of threads&amp;rsquo; execution leads to wrong program behavior Many race conditions are due to data races, and many data races lead to race conditions. Can have race conditions without data races and data races without race conditions.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://tinhpv.github.io/about/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://tinhpv.github.io/about/about/</guid>
+      <description>Hello there!
+My name is Phan Vũ-Tinh, can call me Aaron. I’m a Vietnamese mobile engineer, working mostly on iOS app native development. Besides, I’m also a runner, a travel enthusiast, a bookworm, a pluviophile, and … a superhero movie die-hard fan :)
+I’m passionate about learning new things, deciphering challenging problems, breaking impasses, and creating delightful experiences.
+This blog was made to learn and to share.</description>
     </item>
     
   </channel>

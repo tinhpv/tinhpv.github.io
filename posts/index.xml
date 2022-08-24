@@ -17,6 +17,15 @@ Making a network call, which takes a long time in background queue When it compl
     </item>
     
     <item>
+      <title>Note on Memory management in Swift. Always need [weak self]? Delayed deallocation. Get rid of confusion!</title>
+      <link>https://tinhpv.github.io/posts/memory-management/</link>
+      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/memory-management/</guid>
+      <description>PROBLEM: 1class ProductViewController: UIViewController { 2 private lazy var buyButton = Button() 3 private let purchaseController: PurchaseController 4 5 ... 6 7 override func viewDidLoad() { 8 super.viewDidLoad() 9 10 // Since our buyButton retains its closure, and our 11 // view controller in turn retains that button, we&amp;#39;ll 12 // end up with a retain cycle by capturing self here: 13 buyButton.handler = { 14 self.showShoppingCart() 15 self.purchaseController.startPurchasingProcess() 16 } 17 } 18 19 private func showShoppingCart() { 20 .</description>
+    </item>
+    
+    <item>
       <title>Note on UserDefaults</title>
       <link>https://tinhpv.github.io/posts/note-on-user-default/</link>
       <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>

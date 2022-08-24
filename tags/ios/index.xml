@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ios on Note by Aaron</title>
+    <link>https://tinhpv.github.io/tags/ios/</link>
+    <description>Recent content in ios on Note by Aaron</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 23 Aug 2022 00:41:36 +0700</lastBuildDate><atom:link href="https://tinhpv.github.io/tags/ios/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Grand Central Dispatch</title>
+      <link>https://tinhpv.github.io/posts/grand-central-dispatch/</link>
+      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/grand-central-dispatch/</guid>
+      <description>Overview GCD helps to write multi-threaded code, create threads and schedule tasks on those threads. Main building block: Dispatch Queues, 3 types of queues: Main dispatch queue (serial, pre-defined) drawing app&amp;rsquo;s UI 🎨 handle events (e.g. user interaction) block it for too long, app will freeze 🥶 Global queue (concurrent, pre-defined) Private queue (can be serial/concurrent optionally, serial by default) Usage:
+Making a network call, which takes a long time in background queue When it completes, updating UI on main thread.</description>
+    </item>
+    
+    <item>
+      <title>Note on Memory management in Swift. Always need [weak self]? Delayed deallocation. Get rid of confusion!</title>
+      <link>https://tinhpv.github.io/posts/memory-management/</link>
+      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/memory-management/</guid>
+      <description>PROBLEM: 1class ProductViewController: UIViewController { 2 private lazy var buyButton = Button() 3 private let purchaseController: PurchaseController 4 5 ... 6 7 override func viewDidLoad() { 8 super.viewDidLoad() 9 10 // Since our buyButton retains its closure, and our 11 // view controller in turn retains that button, we&amp;#39;ll 12 // end up with a retain cycle by capturing self here: 13 buyButton.handler = { 14 self.showShoppingCart() 15 self.purchaseController.startPurchasingProcess() 16 } 17 } 18 19 private func showShoppingCart() { 20 .</description>
+    </item>
+    
+    <item>
+      <title>Note on UserDefaults</title>
+      <link>https://tinhpv.github.io/posts/note-on-user-default/</link>
+      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/note-on-user-default/</guid>
+      <description>Preferences are grouped into domains, they can be persistent or volatile
+persistent 👉🏻 stored on memory, not losing when re-boot the app viatile 👉🏻 only valid along UserDefaults instance lifetime. Domain State NSArgumentDomain volatile Application (identified by app&amp;rsquo;s identifier) persistent NSGlobalDomain persistent Languages (identified by language names) volatile NSRegistrationDomain volatile a preference has 3 components:
+domain in which is is stored name (String) value (Data, String, Number, Date, Array, Dictionary) Whenever retrieving value for a key, a search for value of a given key will go through the domain hierarchy above from top to bottom starting with NSArgumentDomain and return the first value it found</description>
+    </item>
+    
+    <item>
+      <title>Concurrency using Actor</title>
+      <link>https://tinhpv.github.io/posts/concurrency-with-actor-swift/</link>
+      <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/concurrency-with-actor-swift/</guid>
+      <description>Overview Kind object type, on a par with enum, class, struct Actor is a reference type, similar to a class, can inherit from other actors, conforms to protocol, be generics, and be used with generics Difference is actor has isolation domain, which helps in protecting mutable state, prevent data races Actor&amp;rsquo;s code run on background by default Actor Isolation If an actor instance have mutable property (var), can only be modified on self Can access actor&amp;rsquo;s property, but this access is asynchronous, must use await Can call actor&amp;rsquo;s method, but this access is asynchronous, must use await (even if it is not an async method) Why await❓ To make sure, no other code belonging to the same actor can start, solves the problem of simultaneous access.</description>
+    </item>
+    
+    <item>
+      <title>Concurrency using Async/Await</title>
+      <link>https://tinhpv.github.io/posts/concurrency-with-async-await/</link>
+      <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/concurrency-with-async-await/</guid>
+      <description>Overview 1func download(url: URL, completionHandler: @escaping (Data) -&amp;gt; ()) { 2 let task = URLSession.shared.dataTask(with: url) { data, _, error in 3 if let data = data { 4 completionHandler(data) 5 } 6 } 7 task.resume() 8} ⬇⬇⬇
+1func download(url: URL) async throws -&amp;gt; Data { 2 let result = try await URLSession.shared.data(from: url) 3 return result.0 // the response data 4} async code runs IN ORDER. No inversion as using completion handler async code can return value to its caller.</description>
+    </item>
+    
+    <item>
+      <title>Data Race with Race Condition? Difference and Solution for both</title>
+      <link>https://tinhpv.github.io/posts/race-condition-vs-data-race/</link>
+      <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/race-condition-vs-data-race/</guid>
+      <description>What are they? Matters? 🤔🆘 Data Race and Race Condition are DIFFERENT
+Data-Race → MORE than 1 thread access to shared-resource (can be a variable or object) and AT LEAST 1 thread tries to modify that resource Race-Condition → Order of threads&amp;rsquo; execution leads to wrong program behavior Many race conditions are due to data races, and many data races lead to race conditions. Can have race conditions without data races and data races without race conditions.</description>
+    </item>
+    
+  </channel>
+</rss>

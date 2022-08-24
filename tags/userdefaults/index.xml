@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>userdefaults on Note by Aaron</title>
+    <link>https://tinhpv.github.io/tags/userdefaults/</link>
+    <description>Recent content in userdefaults on Note by Aaron</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 23 Aug 2022 00:41:36 +0700</lastBuildDate><atom:link href="https://tinhpv.github.io/tags/userdefaults/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Note on UserDefaults</title>
+      <link>https://tinhpv.github.io/posts/note-on-user-default/</link>
+      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/note-on-user-default/</guid>
+      <description>Preferences are grouped into domains, they can be persistent or volatile
+persistent 👉🏻 stored on memory, not losing when re-boot the app viatile 👉🏻 only valid along UserDefaults instance lifetime. Domain State NSArgumentDomain volatile Application (identified by app&amp;rsquo;s identifier) persistent NSGlobalDomain persistent Languages (identified by language names) volatile NSRegistrationDomain volatile a preference has 3 components:
+domain in which is is stored name (String) value (Data, String, Number, Date, Array, Dictionary) Whenever retrieving value for a key, a search for value of a given key will go through the domain hierarchy above from top to bottom starting with NSArgumentDomain and return the first value it found</description>
+    </item>
+    
+  </channel>
+</rss>

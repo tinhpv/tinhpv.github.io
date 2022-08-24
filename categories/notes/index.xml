@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>notes on Note by Aaron</title>
+    <link>https://tinhpv.github.io/categories/notes/</link>
+    <description>Recent content in notes on Note by Aaron</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 23 Aug 2022 00:41:36 +0700</lastBuildDate><atom:link href="https://tinhpv.github.io/categories/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Grand Central Dispatch</title>
+      <link>https://tinhpv.github.io/posts/grand-central-dispatch/</link>
+      <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/posts/grand-central-dispatch/</guid>
+      <description>Overview GCD helps to write multi-threaded code, create threads and schedule tasks on those threads. Main building block: Dispatch Queues, 3 types of queues: Main dispatch queue (serial, pre-defined) drawing app&amp;rsquo;s UI 🎨 handle events (e.g. user interaction) block it for too long, app will freeze 🥶 Global queue (concurrent, pre-defined) Private queue (can be serial/concurrent optionally, serial by default) Usage:
+Making a network call, which takes a long time in background queue When it completes, updating UI on main thread.</description>
+    </item>
+    
+  </channel>
+</rss>

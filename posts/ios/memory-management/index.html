@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <script type="text/javascript" src="https://latest.cactus.chat/cactus.js"></script>
+  <link rel="stylesheet" href="https://latest.cactus.chat/style.css" type="text/css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title> Note on Memory management in Swift. Always need [weak self]? Delayed deallocation? Get rid of confusion! | Note by Aaron</title>
+  <link rel = 'canonical' href = 'https://tinhpv.github.io/posts/ios/memory-management/'>
+  <meta name="description" content="Hello there!
+
+My name is Phan Vũ-Tinh, can call me Aaron. I’m a Vietnamese mobile engineer, working mostly on iOS app native development. Besides, I’m also a runner, a travel enthusiast, a bookworm, a pluviophile, and ... a superhero movie die-hard fan :)
+
+I’m passionate about learning new things, deciphering challenging problems, breaking impasses, and creating delightful experiences.
+
+This blog was made to learn and to share.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+  <meta name="googlebot" content="index,follow,snippet,archive">
+  <meta property="og:title" content="Note on Memory management in Swift. Always need [weak self]? Delayed deallocation? Get rid of confusion!" />
+<meta property="og:description" content="PROBLEM: 1class ProductViewController: UIViewController { 2 private lazy var buyButton = Button() 3 private let purchaseController: PurchaseController 4 5 ... 6 7 override func viewDidLoad() { 8 super.viewDidLoad() 9 10 // Since our buyButton retains its closure, and our 11 // view controller in turn retains that button, we&#39;ll 12 // end up with a retain cycle by capturing self here: 13 buyButton.handler = { 14 self.showShoppingCart() 15 self.purchaseController.startPurchasingProcess() 16 } 17 } 18 19 private func showShoppingCart() { 20 ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tinhpv.github.io/posts/ios/memory-management/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-23T00:41:36+07:00" />
+<meta property="article:modified_time" content="2022-08-23T00:41:36+07:00" />
+
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Note on Memory management in Swift. Always need [weak self]? Delayed deallocation? Get rid of confusion!"/>
+<meta name="twitter:description" content="PROBLEM: 1class ProductViewController: UIViewController { 2 private lazy var buyButton = Button() 3 private let purchaseController: PurchaseController 4 5 ... 6 7 override func viewDidLoad() { 8 super.viewDidLoad() 9 10 // Since our buyButton retains its closure, and our 11 // view controller in turn retains that button, we&#39;ll 12 // end up with a retain cycle by capturing self here: 13 buyButton.handler = { 14 self.showShoppingCart() 15 self.purchaseController.startPurchasingProcess() 16 } 17 } 18 19 private func showShoppingCart() { 20 ."/>
+
+  
+  
+    
+  
+  
+  <link rel="stylesheet" href="https://tinhpv.github.io/css/styles.c05d68261bf086a9d7713c4f8a6215a3601608e267a816a7ee58f139b3d1aae51222aae2081c8e0c6bd35e1334773b7a16283022f31f92afd93bb37e5e822e66.css" integrity="sha512-wF1oJhvwhqnXcTxPimIVo2AWCOJnqBan7ljxObPRquUSIqriCByODGvTXhM0dzt6FigwIvMfkq/ZO7N&#43;XoIuZg=="> 
+
+  
+  
+  
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  
+
+  
+<link rel="icon" type="image/png" href="https://tinhpv.github.io/images/favicon.ico" />
+
+  
+  
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+  <div class="content index py4">
+
+  <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">All posts</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li>
+          <a class="icon" href=" https://tinhpv.github.io/posts/ios/concurrency-with-actor-swift/" aria-label="Previous">
+            <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
+          </a>
+        </li>
+        
+        
+        <li>
+          <a class="icon" href="https://tinhpv.github.io/posts/ios/grand-central-dispatch/" aria-label="Next">
+            <i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i>
+          </a>
+        </li>
+        
+        <li>
+          <a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+            <i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i>
+          </a>
+        </li>
+        <li>
+          <a class="icon" href="#" aria-label="Share">
+            <i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i>
+          </a>
+        </li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f" aria-label="Facebook">
+      <i class="fab fa-facebook " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&text=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Twitter">
+      <i class="fab fa-twitter " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&title=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Linkedin">
+      <i class="fab fa-linkedin " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&is_video=false&description=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Pinterest">
+      <i class="fab fa-pinterest " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f" aria-label="Email">
+      <i class="fas fa-envelope " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&title=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Pocket">
+      <i class="fab fa-get-pocket " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&title=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="reddit">
+      <i class="fab fa-reddit " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&name=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21&description=PROBLEM%3a%201class%20ProductViewController%3a%20UIViewController%20%7b%202%20private%20lazy%20var%20buyButton%20%3d%20Button%28%29%203%20private%20let%20purchaseController%3a%20PurchaseController%204%205%20...%206%207%20override%20func%20viewDidLoad%28%29%20%7b%208%20super.viewDidLoad%28%29%209%2010%20%2f%2f%20Since%20our%20buyButton%20retains%20its%20closure%2c%20and%20our%2011%20%2f%2f%20view%20controller%20in%20turn%20retains%20that%20button%2c%20we%26%2339%3bll%2012%20%2f%2f%20end%20up%20with%20a%20retain%20cycle%20by%20capturing%20self%20here%3a%2013%20buyButton.handler%20%3d%20%7b%2014%20self.showShoppingCart%28%29%2015%20self.purchaseController.startPurchasingProcess%28%29%2016%20%7d%2017%20%7d%2018%2019%20private%20func%20showShoppingCart%28%29%20%7b%2020%20." aria-label="Tumblr">
+      <i class="fab fa-tumblr " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&t=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Hacker News">
+      <i class="fab fa-hacker-news " aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+    
+    <div id="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#problem">PROBLEM:</a></li>
+        <li><a href="#weak-vs-unowned">Weak vs Unowned</a></li>
+        <li><a href="#escaping-closure---non-escaping-closure">Escaping closure - Non-escaping closure</a></li>
+        <li><a href="#retain-cycles">Retain cycles</a></li>
+        <li><a href="#delay-deallocation">Delay deallocation</a></li>
+        <li><a href="#timers">Timers</a></li>
+        <li><a href="#store-a-function-in-a-variable">Store a function in a variable</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#grand-dispatch-queue">Grand Dispatch Queue</a></li>
+        <li><a href="#alternatives-to-weak">Alternatives to <code>weak</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
+  </span>
+</div>
+
+
+  <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+      <h1 class="posttitle" itemprop="name headline">
+        Note on Memory management in Swift. Always need [weak self]? Delayed deallocation? Get rid of confusion!
+      </h1>
+      <div class="meta">
+        
+        <div class="postdate">
+          
+          <time datetime="2022-08-23 00:41:36 &#43;0700 &#43;07" itemprop="datePublished">2022-08-23</time>
+          
+        </div>
+        
+        
+        <div class="article-read-time">
+          <i class="far fa-clock"></i>
+          
+          6 minute read
+        </div>
+        
+        
+        <div class="article-category">
+            <i class="fas fa-archive"></i>
+            
+            
+            <a class="category-link" href="/categories/ios">ios</a>
+            
+        </div>
+        
+        
+        <div class="article-tag">
+            <i class="fas fa-tag"></i>
+            
+            
+            <a class="tag-link" href="/tags/memory" rel="tag">memory</a>
+            
+             ,  
+            <a class="tag-link" href="/tags/grand-dispatch-queues" rel="tag">grand-dispatch-queues</a>
+            
+             ,  
+            <a class="tag-link" href="/tags/gcd" rel="tag">gcd</a>
+            
+        </div>
+        
+      </div>
+    </header>
+
+  
+    
+    <div class="content" itemprop="articleBody">
+      <h3 id="problem">PROBLEM:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">ProductViewController</span>: UIViewController {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#ff79c6">lazy</span> <span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">buyButton</span> = Button()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">purchaseController</span>: PurchaseController
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    ...
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>    <span style="color:#ff79c6">override</span> <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">viewDidLoad</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>        <span style="color:#ff79c6">super</span>.viewDidLoad()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>        <span style="color:#6272a4">// Since our buyButton retains its closure, and our</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        <span style="color:#6272a4">// view controller in turn retains that button, we&#39;ll</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>        <span style="color:#6272a4">// end up with a retain cycle by capturing self here:</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>        buyButton.handler = {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>            <span style="color:#ff79c6">self</span>.showShoppingCart()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>            <span style="color:#ff79c6">self</span>.purchaseController.startPurchasingProcess()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">showShoppingCart</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span>        ...
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span>}
+</span></span></code></pre></div><p>There are two main reasons <code>weak</code> is useful:</p>
+<ul>
+<li>To prevent retain cycles.</li>
+<li>To prevent objects living longer than they should be.</li>
+</ul>
+<h3 id="weak-vs-unowned">Weak vs Unowned</h3>
+<ul>
+<li><code>weak</code> is declared as an Optional while <code>unowned</code> is not.</li>
+<li>By declaring it <code>weak</code> you get to handle the case that it might be nil inside the closure at some point.</li>
+<li>If you try to access an <code>unowned</code> variable that happens to be nil, it will crash the whole program.</li>
+<li>Only use <code>unowned</code> when you are positive that variable will always be around while the closure is around.</li>
+</ul>
+<h3 id="escaping-closure---non-escaping-closure">Escaping closure - Non-escaping closure</h3>
+<ul>
+<li>@escaping closure, can be stored, passed around and executed later.</li>
+<li>@nonescaping closure, executed in scope, immediately, can NOT be stored and run later</li>
+</ul>
+<h3 id="retain-cycles">Retain cycles</h3>
+<p>Nonescaping closure &gt; NO retain cycles!
+Escaping closure, potentially have retain cycles once:</p>
+<ul>
+<li>Closure is stored in a property or passed to another closure</li>
+<li>Object inside that closure maintains a strong reference to the closure (for example, <code>self</code>)</li>
+</ul>
+<h3 id="delay-deallocation">Delay deallocation</h3>
+<ul>
+<li>By default, closure capture strongly all objects in its body (e.g. <code>self</code>)</li>
+<li>Memory of these objects will not be cleaned up while closure is STILL <strong>ALIVE</strong></li>
+<li>Scenarios that keep the closure scope alive:
+<ul>
+<li>A closure (escaping or non-escaping) might be doing some expensive serial operations, thereby delaying its scope from returning until all the work is completed…</li>
+<li>An escaping closure waits for a callback with a long timeout.</li>
+<li>A closure (escaping or non-escaping) might employ some thread blocking mechanism (such as DispatchSemaphore) that can delay or prevent its scope from returning</li>
+<li>An escaping closure might be scheduled to execute after a delay (e.g. <code>DispatchQueue.asyncAfter</code> or <code>UIViewPropertyAnimator.startAnimation(afterDelay:)</code>)</li>
+</ul>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">delayedAllocAsyncCall</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">url</span> = URL(string: <span style="color:#f1fa8c">&#34;https://www.google.com:81&#34;</span>)<span style="color:#ff79c6">!</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">sessionConfig</span> = URLSessionConfiguration.<span style="color:#ff79c6">default</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    sessionConfig.timeoutIntervalForRequest = <span style="color:#bd93f9">999.0</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    sessionConfig.timeoutIntervalForResource = <span style="color:#bd93f9">999.0</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">session</span> = URLSession(configuration: sessionConfig)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">demoTask</span> = session.downloadTask(with: url) { localURL, <span style="color:#ff79c6">_</span>, error <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>        <span style="color:#ff79c6">guard</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">localURL</span> = localURL <span style="color:#ff79c6">else</span> { <span style="color:#ff79c6">return</span> }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">contents</span> = (<span style="color:#ff79c6">try</span>? <span style="color:#8be9fd;font-style:italic">String</span>(contentsOf: localURL)) ?? <span style="color:#f1fa8c">&#34;No contents&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>        print(contents)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>        print(<span style="color:#ff79c6">self</span>.view.description)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>    demoTask.resume()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>}
+</span></span></code></pre></div><p>What&rsquo;s going on?</p>
+<ul>
+<li><code>demoTask</code> run immediately, not be stored anywhere else in the class.</li>
+<li>the request got the time out of 999s</li>
+<li>completion handler of <code>downloadTask</code>does NOT cause retain cycle.</li>
+<li>BUT&hellip;
+<ul>
+<li>while running the app, downloadTask is running but is not completed&hellip; but we <em>dismiss</em> the view controller</li>
+<li>the closure strongly capture <code>self</code> (line 13) ⇢ its memory will not be cleaned.</li>
+<li><strong>SOLUTION</strong>: use <code>[weak self]</code> here&hellip; DO NOT use <code>[unowned self]</code> as the app get crashed.</li>
+</ul>
+</li>
+</ul>
+<p>Another example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">process</span>(image: UIImage, completion: @escaping (UIImage?) -&gt; <span style="color:#8be9fd;font-style:italic">Void</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    DispatchQueue.global(qos: .userInteractive).async { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>        <span style="color:#ff79c6">guard</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">self</span> = <span style="color:#ff79c6">self</span> <span style="color:#ff79c6">else</span> { <span style="color:#ff79c6">return</span> }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>        <span style="color:#6272a4">// perform expensive sequential work on the image</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">rotated</span> = <span style="color:#ff79c6">self</span>.rotate(image: image)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">cropped</span> = <span style="color:#ff79c6">self</span>.crop(image: rotated)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">scaled</span> = <span style="color:#ff79c6">self</span>.scale(image: cropped)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">processedImage</span> = <span style="color:#ff79c6">self</span>.filter(image: scaled)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>        completion(processedImage)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>}
+</span></span></code></pre></div><ul>
+<li>line 5, 6, 7 do serial expensive operations.</li>
+<li>use <code>[weak self]</code> but use <code>guard let</code> to unwrap <code>self</code>
+<ul>
+<li>will create <em>temporary</em> strong reference to <code>self</code> within the closure lifecycle.</li>
+<li>will prevent <code>self</code> from deallocating until the closure is completedly run</li>
+<li><strong>SOLUTION</strong>: use <strong>optional chaining</strong> instead. it will check nil for <code>self</code> in every method call at line 5, 6, 7, if self == nil, skip!</li>
+</ul>
+</li>
+</ul>
+<h3 id="timers">Timers</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">leakyTimer</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">timer</span> = Timer.scheduledTimer(withTimeInterval: <span style="color:#bd93f9">1.0</span>, repeats: <span style="color:#ff79c6">true</span>) { timer <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">currentColor</span> = <span style="color:#ff79c6">self</span>.view.backgroundColor
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>        <span style="color:#ff79c6">self</span>.view.backgroundColor = currentColor == .red ? .blue : .red
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>    timer.tolerance = <span style="color:#bd93f9">0.1</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span>    RunLoop.current.add(timer, forMode: RunLoop.Mode.common)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span>}
+</span></span></code></pre></div><ul>
+<li>it REPEATS</li>
+<li>closure does NOT use capture list <code>[weak self]</code> &gt; strongly capture <code>self</code>
+➡ delay deallocation</li>
+<li>so, use <code>[weak self]</code> here and invalidate the timer when it is no longer needed.</li>
+</ul>
+<h3 id="store-a-function-in-a-variable">Store a function in a variable</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">FirstViewController</span>: UIViewController {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>  <span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">closure</span>: (() -&gt; <span style="color:#8be9fd;font-style:italic">Void</span>)?
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">SecondViewController</span>: UIViewController {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>  <span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">firstVC</span> = FirstViewController()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>  <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">setupClosure</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>    firstVC.closure = printer
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>  }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>  <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">printer</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>    print(<span style="color:#ff79c6">self</span>.view.description) 
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>  }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>}
+</span></span></code></pre></div><ul>
+<li>This causes retain cycle!</li>
+<li>line 9, closure strongly capture <code>self</code> (<code>self.printer</code>) and <code>self</code> strongly reference to <code>FirstViewController</code> that own the closure</li>
+<li>** SOLUTION:**</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>  <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">setupClosure</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    firstVC.closure = { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>        <span style="color:#ff79c6">self</span>?.printer()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>  }
+</span></span></code></pre></div><h5 id="nested-closures">Nested closures</h5>
+<p>capture list <code>[weak self]</code> once in the outer block is enough. Else, if not using capture list here, retain cycle is made.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>parentFunction { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span> 
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    <span style="color:#ff79c6">self</span>?.childFunction {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>        <span style="color:#ff79c6">self</span>?.foo()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>}
+</span></span></code></pre></div><p>If use <code>guard let self = self</code> inside, have to capture list <code>[weak self]</code> to the inner block</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>parentFunction { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span> 
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    <span style="color:#ff79c6">guard</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">self</span> = <span style="color:#ff79c6">self</span> <span style="color:#ff79c6">else</span> { <span style="color:#ff79c6">return</span> }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    <span style="color:#ff79c6">self</span>.childFunction { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span> <span style="color:#6272a4">// need another here</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>        <span style="color:#ff79c6">self</span>?.foo()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>}
+</span></span></code></pre></div><p>Full example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Experiment</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>    <span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">_someFunctionWithTrailingClosure</span>: (() -&gt; ())?
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    <span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">_anotherFunctionWithTrailingClosure</span>: (() -&gt; ())?
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">someFunctionWithTrailingClosure</span>(closure: @escaping () -&gt; <span style="color:#8be9fd;font-style:italic">Void</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>        print(<span style="color:#f1fa8c">&#34;starting&#34;</span>, <span style="color:#ff79c6">#function</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>        _someFunctionWithTrailingClosure = closure
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>        
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>        <span style="color:#6272a4">// Nothing happens as retain cycle if no `[weak self]` here</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        <span style="color:#6272a4">// But it will cause delayed allocation, self will live until the block completes.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>        DispatchQueue.main.asyncAfter(deadline: .now() <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">5</span>) { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>            <span style="color:#ff79c6">self</span>?._someFunctionWithTrailingClosure?()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>            print(<span style="color:#f1fa8c">&#34;finishing&#34;</span>, <span style="color:#ff79c6">#function</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>    <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">anotherFunctionWithTrailingClosure</span>(closure: @escaping () -&gt; <span style="color:#8be9fd;font-style:italic">Void</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>        print(<span style="color:#f1fa8c">&#34;starting&#34;</span>, <span style="color:#ff79c6">#function</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span>        _anotherFunctionWithTrailingClosure = closure
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span>        
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span>        DispatchQueue.main.asyncAfter(deadline: .now() <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">5</span>) { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span>            <span style="color:#ff79c6">self</span>?._anotherFunctionWithTrailingClosure?()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span>            print(<span style="color:#f1fa8c">&#34;finishing&#34;</span>, <span style="color:#ff79c6">#function</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span>    <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">doSomething</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span>        print(<span style="color:#ff79c6">#function</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span><span>    <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">testCompletionHandlers</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span>        someFunctionWithTrailingClosure { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span><span>            <span style="color:#ff79c6">guard</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">self</span> = <span style="color:#ff79c6">self</span> <span style="color:#ff79c6">else</span> { <span style="color:#ff79c6">return</span> }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span><span>            <span style="color:#ff79c6">self</span>.anotherFunctionWithTrailingClosure { [<span style="color:#ff79c6">weak</span> <span style="color:#ff79c6">self</span>] <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span><span>                <span style="color:#ff79c6">self</span>?.doSomething()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span>            }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span><span>    <span style="color:#6272a4">// to track when the object is deallocated</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span><span>    <span style="color:#6272a4">// if `deinit` does not get called, retain cycle is happened.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span><span>    <span style="color:#8be9fd;font-style:italic">deinit</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span><span>        print(<span style="color:#f1fa8c">&#34;deinit&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48</span><span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">performExperiment</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49</span><span>    DispatchQueue.global().async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50</span><span>        <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">obj</span> = Experiment()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51</span><span>        obj.testCompletionHandlers()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53</span><span>        <span style="color:#6272a4">// sleep long enough for `anotherFunctionWithTrailingClosure` to start, but not yet call its completion handler</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54</span><span>        Thread.sleep(forTimeInterval: <span style="color:#bd93f9">7</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58</span><span>performExperiment()
+</span></span></code></pre></div><h3 id="grand-dispatch-queue">Grand Dispatch Queue</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">nonLeakyDispatchQueue</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    DispatchQueue.main.asyncAfter(deadline: .now() <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">1.0</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>        <span style="color:#ff79c6">self</span>.view.backgroundColor = .red
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    DispatchQueue.main.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>        <span style="color:#ff79c6">self</span>.view.backgroundColor = .red
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>    DispatchQueue.global(qos: .background).async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        print(<span style="color:#ff79c6">self</span>.navigationItem.description)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>}
+</span></span></code></pre></div><ul>
+<li>Do NOT cause retain cycle, even when the closure strongly capture <code>self</code></li>
+<li>Because <code>self</code> does not reference <code>DispatchQueue.main</code></li>
+<li>Only when store them to variables that belong to <code>self</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">leakyDispatchQueue</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">workItem</span> = DispatchWorkItem { <span style="color:#ff79c6">self</span>.view.backgroundColor = .red }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    DispatchQueue.main.asyncAfter(deadline: .now() <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">1.0</span>, execute: workItem)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>    <span style="color:#ff79c6">self</span>.workItem = workItem <span style="color:#6272a4">// stored in a property</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>}
+</span></span></code></pre></div><h3 id="alternatives-to-weak">Alternatives to <code>weak</code></h3>
+<ul>
+<li>Define a tuple which contains only objects needed for the closure</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">context</span> = (
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    parser: parser,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>    schema: schema,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    titleLabel: titleLabel,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    textLabel: textLabel
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>dataLoader.loadData(from: url) { data <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>    <span style="color:#6272a4">// We can now use the context instead of having to capture &#39;self&#39;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">model</span> = <span style="color:#ff79c6">try</span> context.parser.parse(data, using: context.schema)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>    context.titleLabel.text = model.title
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>    context.textLabel.text = model.text
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>}
+</span></span></code></pre></div><p>Learned from:</p>
+<ul>
+<li><a href="https://stackoverflow.com/a/62352667">https://stackoverflow.com/a/62352667</a></li>
+<li><a href="https://stackoverflow.com/a/41992442">https://stackoverflow.com/a/41992442</a></li>
+<li><a href="https://medium.com/@almalehdev/you-dont-always-need-weak-self-a778bec505ef">https://medium.com/@almalehdev/you-dont-always-need-weak-self-a778bec505ef</a></li>
+<li><a href="https://www.avanderlee.com/swift/weak-self/">https://www.avanderlee.com/swift/weak-self/</a></li>
+<li><a href="https://www.swiftbysundell.com/articles/capturing-objects-in-swift-closures/">https://www.swiftbysundell.com/articles/capturing-objects-in-swift-closures/</a></li>
+<li><a href="https://www.swiftbysundell.com/questions/is-weak-self-always-required/">https://www.swiftbysundell.com/questions/is-weak-self-always-required/</a></li>
+<li><a href="https://alisoftware.github.io/swift/closures/2016/07/25/closure-capture-1/">https://alisoftware.github.io/swift/closures/2016/07/25/closure-capture-1/</a></li>
+</ul>
+
+    </div>
+  </article>
+
+  
+  
+
+
+
+
+  <div class="blog-post-comments">
+    
+      <div id="cactus-comments-thread">
+  <script>
+  initComments({
+    node: document.getElementById("cactus-comments-thread"),
+    defaultHomeserverUrl: 'https:\/\/matrix.cactus.chat:8448',
+    serverName: 'cactus.chat',
+    siteName: "notebyaaron",
+    commentSectionId: "\/posts\/ios\/memory-management\/"
+  })
+</script>
+</div>
+
+    
+  </div>
+
+
+
+  <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/posts">All posts</a></li>
+         
+          <li><a href="/tags">Tags</a></li>
+         
+          <li><a href="/categories">Categories</a></li>
+         
+          <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </div>
+
+    
+    <div id="toc-footer" style="display: none">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#problem">PROBLEM:</a></li>
+        <li><a href="#weak-vs-unowned">Weak vs Unowned</a></li>
+        <li><a href="#escaping-closure---non-escaping-closure">Escaping closure - Non-escaping closure</a></li>
+        <li><a href="#retain-cycles">Retain cycles</a></li>
+        <li><a href="#delay-deallocation">Delay deallocation</a></li>
+        <li><a href="#timers">Timers</a></li>
+        <li><a href="#store-a-function-in-a-variable">Store a function in a variable</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#grand-dispatch-queue">Grand Dispatch Queue</a></li>
+        <li><a href="#alternatives-to-weak">Alternatives to <code>weak</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
+
+    <div id="share-footer" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f" aria-label="Facebook">
+      <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&text=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Twitter">
+      <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&title=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Linkedin">
+      <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&is_video=false&description=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Pinterest">
+      <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f" aria-label="Email">
+      <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&title=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Pocket">
+      <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&title=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="reddit">
+      <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&name=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21&description=PROBLEM%3a%201class%20ProductViewController%3a%20UIViewController%20%7b%202%20private%20lazy%20var%20buyButton%20%3d%20Button%28%29%203%20private%20let%20purchaseController%3a%20PurchaseController%204%205%20...%206%207%20override%20func%20viewDidLoad%28%29%20%7b%208%20super.viewDidLoad%28%29%209%2010%20%2f%2f%20Since%20our%20buyButton%20retains%20its%20closure%2c%20and%20our%2011%20%2f%2f%20view%20controller%20in%20turn%20retains%20that%20button%2c%20we%26%2339%3bll%2012%20%2f%2f%20end%20up%20with%20a%20retain%20cycle%20by%20capturing%20self%20here%3a%2013%20buyButton.handler%20%3d%20%7b%2014%20self.showShoppingCart%28%29%2015%20self.purchaseController.startPurchasingProcess%28%29%2016%20%7d%2017%20%7d%2018%2019%20private%20func%20showShoppingCart%28%29%20%7b%2020%20." aria-label="Tumblr">
+      <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fmemory-management%2f&t=Note%20on%20Memory%20management%20in%20Swift.%20Always%20need%20%5bweak%20self%5d%3f%20Delayed%20deallocation%3f%20Get%20rid%20of%20confusion%21" aria-label="Hacker News">
+      <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      
+        <a id="menu-toggle" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;" aria-label="Menu">
+          <i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="toc-toggle" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;" aria-label="TOC">
+          <i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share-toggle" class="icon" href="#" onclick="$('#share-footer').toggle();return false;" aria-label="Share">
+          <i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+          <i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+
+  <footer id="footer">
+  <div class="footer-left">
+    Copyright  &copy; 2022  Note by Aaron 
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">All posts</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+
+  </div>
+</body>
+
+<link rel="stylesheet" href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+
+<script src=/js/code-copy.js></script>
+
+
+
+
+</html>

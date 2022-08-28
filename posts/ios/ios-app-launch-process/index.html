@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <script type="text/javascript" src="https://latest.cactus.chat/cactus.js"></script>
+  <link rel="stylesheet" href="https://latest.cactus.chat/style.css" type="text/css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title> Note on iOS application launch process | Note by Aaron</title>
+  <link rel = 'canonical' href = 'https://tinhpv.github.io/posts/ios/ios-app-launch-process/'>
+  <meta name="description" content="Hello there!
+
+My name is Phan Vũ-Tinh, can call me Aaron. I’m a Vietnamese mobile engineer, working mostly on iOS app native development. Besides, I’m also a runner, a travel enthusiast, a bookworm, a pluviophile, and ... a superhero movie die-hard fan :)
+
+I’m passionate about learning new things, deciphering challenging problems, breaking impasses, and creating delightful experiences.
+
+This blog was made to learn and to share.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+  <meta name="googlebot" content="index,follow,snippet,archive">
+  <meta property="og:title" content="Note on iOS application launch process" />
+<meta property="og:description" content="Entry point When the app launches, system needs to know where to find the compiled binary inside app&rsquo;s bundle 💊 Get name of the binary from Info.plist file with Executable file key (CFBundleExecutable), whose value is usually the same as $(PRODUCT_NAME) Build Setting System locates, loads binary file and links any needed frameworks Where systems call into binary&rsquo;s code to make it run? With Objective-C app → entry point is main() setup memory management environment - @autoreleasepool {} call built-in UIApplicationMain function to get the app running 1int main(int argc, char * argv[]) { 2 NSString * appDelegateClassName; 3 @autoreleasepool { 4 // Setup code that might create autoreleased objects goes here." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tinhpv.github.io/posts/ios/ios-app-launch-process/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-06-23T00:41:36+07:00" />
+<meta property="article:modified_time" content="2022-06-23T00:41:36+07:00" />
+
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Note on iOS application launch process"/>
+<meta name="twitter:description" content="Entry point When the app launches, system needs to know where to find the compiled binary inside app&rsquo;s bundle 💊 Get name of the binary from Info.plist file with Executable file key (CFBundleExecutable), whose value is usually the same as $(PRODUCT_NAME) Build Setting System locates, loads binary file and links any needed frameworks Where systems call into binary&rsquo;s code to make it run? With Objective-C app → entry point is main() setup memory management environment - @autoreleasepool {} call built-in UIApplicationMain function to get the app running 1int main(int argc, char * argv[]) { 2 NSString * appDelegateClassName; 3 @autoreleasepool { 4 // Setup code that might create autoreleased objects goes here."/>
+
+  
+  
+    
+  
+  
+  <link rel="stylesheet" href="https://tinhpv.github.io/css/styles.c05d68261bf086a9d7713c4f8a6215a3601608e267a816a7ee58f139b3d1aae51222aae2081c8e0c6bd35e1334773b7a16283022f31f92afd93bb37e5e822e66.css" integrity="sha512-wF1oJhvwhqnXcTxPimIVo2AWCOJnqBan7ljxObPRquUSIqriCByODGvTXhM0dzt6FigwIvMfkq/ZO7N&#43;XoIuZg=="> 
+
+  
+  
+  
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  
+
+  
+<link rel="icon" type="image/png" href="https://tinhpv.github.io/images/favicon.ico" />
+
+  
+  
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+  <div class="content index py4">
+
+  <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">All posts</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li>
+          <a class="icon" href=" https://tinhpv.github.io/posts/ios/copy-on-write/" aria-label="Previous">
+            <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
+          </a>
+        </li>
+        
+        
+        <li>
+          <a class="icon" href="https://tinhpv.github.io/posts/ios/race-condition-vs-data-race/" aria-label="Next">
+            <i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i>
+          </a>
+        </li>
+        
+        <li>
+          <a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+            <i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i>
+          </a>
+        </li>
+        <li>
+          <a class="icon" href="#" aria-label="Share">
+            <i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i>
+          </a>
+        </li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f" aria-label="Facebook">
+      <i class="fab fa-facebook " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&text=Note%20on%20iOS%20application%20launch%20process" aria-label="Twitter">
+      <i class="fab fa-twitter " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&title=Note%20on%20iOS%20application%20launch%20process" aria-label="Linkedin">
+      <i class="fab fa-linkedin " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&is_video=false&description=Note%20on%20iOS%20application%20launch%20process" aria-label="Pinterest">
+      <i class="fab fa-pinterest " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Note%20on%20iOS%20application%20launch%20process&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f" aria-label="Email">
+      <i class="fas fa-envelope " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&title=Note%20on%20iOS%20application%20launch%20process" aria-label="Pocket">
+      <i class="fab fa-get-pocket " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&title=Note%20on%20iOS%20application%20launch%20process" aria-label="reddit">
+      <i class="fab fa-reddit " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&name=Note%20on%20iOS%20application%20launch%20process&description=Entry%20point%20When%20the%20app%20launches%2c%20system%20needs%20to%20know%20where%20to%20find%20the%20compiled%20binary%20inside%20app%26rsquo%3bs%20bundle%20%f0%9f%92%8a%20Get%20name%20of%20the%20binary%20from%20Info.plist%20file%20with%20Executable%20file%20key%20%28CFBundleExecutable%29%2c%20whose%20value%20is%20usually%20the%20same%20as%20%24%28PRODUCT_NAME%29%20Build%20Setting%20System%20locates%2c%20loads%20binary%20file%20and%20links%20any%20needed%20frameworks%20Where%20systems%20call%20into%20binary%26rsquo%3bs%20code%20to%20make%20it%20run%3f%20With%20Objective-C%20app%20%e2%86%92%20entry%20point%20is%20main%28%29%20setup%20memory%20management%20environment%20-%20%40autoreleasepool%20%7b%7d%20call%20built-in%20UIApplicationMain%20function%20to%20get%20the%20app%20running%201int%20main%28int%20argc%2c%20char%20%2a%20argv%5b%5d%29%20%7b%202%20NSString%20%2a%20appDelegateClassName%3b%203%20%40autoreleasepool%20%7b%204%20%2f%2f%20Setup%20code%20that%20might%20create%20autoreleased%20objects%20goes%20here." aria-label="Tumblr">
+      <i class="fab fa-tumblr " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&t=Note%20on%20iOS%20application%20launch%20process" aria-label="Hacker News">
+      <i class="fab fa-hacker-news " aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+    
+    <div id="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#entry-point">Entry point</a>
+          <ul>
+            <li><a href="#with-objective-c-app--entry-point-is-main">With Objective-C app → entry point is <code>main()</code></a></li>
+            <li><a href="#with-swift-app">with Swift app</a></li>
+          </ul>
+        </li>
+        <li><a href="#events-of-uiapplicationmain">Events of <code>UIApplicationMain</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
+  </span>
+</div>
+
+
+  <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+      <h1 class="posttitle" itemprop="name headline">
+        Note on iOS application launch process
+      </h1>
+      <div class="meta">
+        
+        <div class="postdate">
+          
+          <time datetime="2022-06-23 00:41:36 &#43;0700 &#43;07" itemprop="datePublished">2022-06-23</time>
+          
+        </div>
+        
+        
+        <div class="article-read-time">
+          <i class="far fa-clock"></i>
+          
+          2 minute read
+        </div>
+        
+        
+        <div class="article-category">
+            <i class="fas fa-archive"></i>
+            
+            
+            <a class="category-link" href="/categories/ios">ios</a>
+            
+        </div>
+        
+        
+        <div class="article-tag">
+            <i class="fas fa-tag"></i>
+            
+            
+            <a class="tag-link" href="/tags/ios-common" rel="tag">ios-common</a>
+            
+        </div>
+        
+      </div>
+    </header>
+
+  
+    
+    <div class="content" itemprop="articleBody">
+      <h3 id="entry-point">Entry point</h3>
+<ul>
+<li>When the app launches, system needs to know where to find the compiled binary inside app&rsquo;s bundle 💊 Get <strong>name of the binary</strong> from <code>Info.plist</code> file with <code>Executable file</code> key (<code>CFBundleExecutable</code>), whose value is usually the same as <code>$(PRODUCT_NAME)</code> Build Setting</li>
+<li>System locates, loads binary file and links any needed frameworks</li>
+<li>Where systems call into binary&rsquo;s code to make it run?</li>
+</ul>
+<h4 id="with-objective-c-app--entry-point-is-main">With Objective-C app → entry point is <code>main()</code></h4>
+<ul>
+<li>setup memory management environment - <code>@autoreleasepool {}</code></li>
+<li>call built-in <code>UIApplicationMain</code> function to get the app running</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>int main(int argc, char <span style="color:#ff79c6">*</span> argv[]) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    NSString <span style="color:#ff79c6">*</span> appDelegateClassName;
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    @autoreleasepool {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>        <span style="color:#6272a4">// Setup code that might create autoreleased objects goes here.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>        appDelegateClassName = NSStringFromClass([AppDelegate <span style="color:#8be9fd;font-style:italic">class</span>]);
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span>    <span style="color:#ff79c6">return</span> UIApplicationMain(argc, argv, <span style="color:#ff79c6">nil</span>, appDelegateClassName);
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span>}
+</span></span></code></pre></div><h4 id="with-swift-app">with Swift app</h4>
+<ul>
+<li>notice the <code>@main</code> attribute on <code>AppDelegate.swift</code>, which does all thing that has been done on <code>main()</code> Objective-C app.</li>
+<li>Can create a custom <code>main</code> function. Create new file with the name as <code>main.swift</code>:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#8be9fd;font-style:italic">import</span> <span style="color:#50fa7b">UIKit</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>UIApplicationMain(
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>    CommandLine.argc,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>    CommandLine.unsafeArgv,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>    <span style="color:#ff79c6">nil</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span>    NSStringFromClass(AppDelegate.<span style="color:#ff79c6">self</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span>)
+</span></span></code></pre></div><ul>
+<li>From Swift 5.3, can create custom struct in a file with any name, just required to give it a static function <code>main</code> and trigger <code>UIApplicationMain</code>:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">import</span> <span style="color:#50fa7b">UIKit</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>@main
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span><span style="color:#8be9fd;font-style:italic">struct</span> <span style="color:#50fa7b">EntryPoint</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>        UIApplicationMain(
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>            CommandLine.argc,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>            CommandLine.unsafeArgv,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>            <span style="color:#ff79c6">nil</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>            NSStringFromClass(AppDelegate.<span style="color:#ff79c6">self</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        )
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>}
+</span></span></code></pre></div><h3 id="events-of-uiapplicationmain">Events of <code>UIApplicationMain</code></h3>
+<ol>
+<li>It creates shared application instance</li>
+<li>Create application instance&rsquo;s <em>delegate</em>. See above the 4th argument, passing into <code>NSStringFromClass(AppDelegate.self)</code> specifies that <code>AppDelegate</code> will be the app delegate class.</li>
+<li>Turn to app delegate, call <code>application(_:didFinishLaunchingWithOptions:)</code>, can do some initializations here</li>
+<li>Create <code>UISceneSession</code>, <code>UIWindowScene</code> and app&rsquo;s window scene <em>delegate</em>. Entry <code>Application Scene Manifest</code> in the file <code>Info.plist</code> declare the class of the window scene delegate instance.</li>
+<li>If there is storyboard defined in <code>Info.plist</code>, <code>UIApplicationMain</code> will load and find the initial view controller and the associated class, <code>UIApplicationMain</code> will initialize it</li>
+<li>Create app&rsquo;s <code>window</code>. This window is assigned to scene delegate&rsquo;s <code>window</code>. Then, assign the initial view controller instance to <code>window</code>&rsquo;s <code>rootViewController</code> property</li>
+<li>Call scene delegate method <code>scene(_:willConnectTo:options:)</code></li>
+<li>Now, time to make UI to appear, <code>UIApplicationMain</code> calls <code>makeKeyAndVisible</code> of <code>UIWindow</code></li>
+<li>Window is about to appear. window turn to the root view controller, the main view of that VC will be obtained. If VC get its view from nib, it is loaded and its objects are instantiated and initialized.</li>
+<li>Time for some methods of view controller lifecycle will be called, as <code>viewDidLoad()</code>, root view controller&rsquo;s main view is placed into window, which is visible to user.</li>
+</ol>
+<p><code>UIApplicationMain</code> has still been running, waiting for user to interact , maintain the <code>event loop</code></p>
+
+    </div>
+  </article>
+
+  
+  
+
+
+
+
+  <div class="blog-post-comments">
+    
+      <div id="cactus-comments-thread">
+  <script>
+  initComments({
+    node: document.getElementById("cactus-comments-thread"),
+    defaultHomeserverUrl: 'https:\/\/matrix.cactus.chat:8448',
+    serverName: 'cactus.chat',
+    siteName: "notebyaaron",
+    commentSectionId: "\/posts\/ios\/ios-app-launch-process\/"
+  })
+</script>
+</div>
+
+    
+  </div>
+
+
+
+  <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/posts">All posts</a></li>
+         
+          <li><a href="/tags">Tags</a></li>
+         
+          <li><a href="/categories">Categories</a></li>
+         
+          <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </div>
+
+    
+    <div id="toc-footer" style="display: none">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#entry-point">Entry point</a>
+          <ul>
+            <li><a href="#with-objective-c-app--entry-point-is-main">With Objective-C app → entry point is <code>main()</code></a></li>
+            <li><a href="#with-swift-app">with Swift app</a></li>
+          </ul>
+        </li>
+        <li><a href="#events-of-uiapplicationmain">Events of <code>UIApplicationMain</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
+
+    <div id="share-footer" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f" aria-label="Facebook">
+      <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&text=Note%20on%20iOS%20application%20launch%20process" aria-label="Twitter">
+      <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&title=Note%20on%20iOS%20application%20launch%20process" aria-label="Linkedin">
+      <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&is_video=false&description=Note%20on%20iOS%20application%20launch%20process" aria-label="Pinterest">
+      <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Note%20on%20iOS%20application%20launch%20process&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f" aria-label="Email">
+      <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&title=Note%20on%20iOS%20application%20launch%20process" aria-label="Pocket">
+      <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&title=Note%20on%20iOS%20application%20launch%20process" aria-label="reddit">
+      <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&name=Note%20on%20iOS%20application%20launch%20process&description=Entry%20point%20When%20the%20app%20launches%2c%20system%20needs%20to%20know%20where%20to%20find%20the%20compiled%20binary%20inside%20app%26rsquo%3bs%20bundle%20%f0%9f%92%8a%20Get%20name%20of%20the%20binary%20from%20Info.plist%20file%20with%20Executable%20file%20key%20%28CFBundleExecutable%29%2c%20whose%20value%20is%20usually%20the%20same%20as%20%24%28PRODUCT_NAME%29%20Build%20Setting%20System%20locates%2c%20loads%20binary%20file%20and%20links%20any%20needed%20frameworks%20Where%20systems%20call%20into%20binary%26rsquo%3bs%20code%20to%20make%20it%20run%3f%20With%20Objective-C%20app%20%e2%86%92%20entry%20point%20is%20main%28%29%20setup%20memory%20management%20environment%20-%20%40autoreleasepool%20%7b%7d%20call%20built-in%20UIApplicationMain%20function%20to%20get%20the%20app%20running%201int%20main%28int%20argc%2c%20char%20%2a%20argv%5b%5d%29%20%7b%202%20NSString%20%2a%20appDelegateClassName%3b%203%20%40autoreleasepool%20%7b%204%20%2f%2f%20Setup%20code%20that%20might%20create%20autoreleased%20objects%20goes%20here." aria-label="Tumblr">
+      <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fios-app-launch-process%2f&t=Note%20on%20iOS%20application%20launch%20process" aria-label="Hacker News">
+      <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      
+        <a id="menu-toggle" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;" aria-label="Menu">
+          <i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="toc-toggle" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;" aria-label="TOC">
+          <i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share-toggle" class="icon" href="#" onclick="$('#share-footer').toggle();return false;" aria-label="Share">
+          <i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+          <i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+
+  <footer id="footer">
+  <div class="footer-left">
+    Copyright  &copy; 2022  Note by Aaron 
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">All posts</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+
+  </div>
+</body>
+
+<link rel="stylesheet" href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+
+<script src=/js/code-copy.js></script>
+
+
+
+
+</html>

@@ -25,7 +25,7 @@
     </item>
     
     <item>
-      <title>grand dispatch queues</title>
+      <title>grand-dispatch-queues</title>
       <link>https://tinhpv.github.io/tags/grand-dispatch-queues/</link>
       <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
       
@@ -34,11 +34,11 @@
     </item>
     
     <item>
-      <title>ios</title>
-      <link>https://tinhpv.github.io/tags/ios/</link>
+      <title>ios-common</title>
+      <link>https://tinhpv.github.io/tags/ios-common/</link>
       <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://tinhpv.github.io/tags/ios/</guid>
+      <guid>https://tinhpv.github.io/tags/ios-common/</guid>
       <description></description>
     </item>
     
@@ -52,11 +52,11 @@
     </item>
     
     <item>
-      <title>mutithread</title>
-      <link>https://tinhpv.github.io/tags/mutithread/</link>
+      <title>multithread</title>
+      <link>https://tinhpv.github.io/tags/multithread/</link>
       <pubDate>Tue, 23 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://tinhpv.github.io/tags/mutithread/</guid>
+      <guid>https://tinhpv.github.io/tags/multithread/</guid>
       <description></description>
     </item>
     
@@ -70,6 +70,15 @@
     </item>
     
     <item>
+      <title>common</title>
+      <link>https://tinhpv.github.io/tags/common/</link>
+      <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
+      
+      <guid>https://tinhpv.github.io/tags/common/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>concurrency</title>
       <link>https://tinhpv.github.io/tags/concurrency/</link>
       <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
@@ -79,20 +88,20 @@
     </item>
     
     <item>
-      <title>datarace</title>
-      <link>https://tinhpv.github.io/tags/datarace/</link>
+      <title>data-race</title>
+      <link>https://tinhpv.github.io/tags/data-race/</link>
       <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://tinhpv.github.io/tags/datarace/</guid>
+      <guid>https://tinhpv.github.io/tags/data-race/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>racecondition</title>
-      <link>https://tinhpv.github.io/tags/racecondition/</link>
+      <title>race-condition</title>
+      <link>https://tinhpv.github.io/tags/race-condition/</link>
       <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://tinhpv.github.io/tags/racecondition/</guid>
+      <guid>https://tinhpv.github.io/tags/race-condition/</guid>
       <description></description>
     </item>
     

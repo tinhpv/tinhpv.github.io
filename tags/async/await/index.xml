@@ -7,10 +7,10 @@
     <generator>Hugo -- gohugo.io</generator><atom:link href="https://tinhpv.github.io/tags/async/await/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Concurrency using Async/Await</title>
-      <link>https://tinhpv.github.io/posts/concurrency-with-async-await/</link>
+      <link>https://tinhpv.github.io/posts/ios/concurrency-with-async-await/</link>
       <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
       
-      <guid>https://tinhpv.github.io/posts/concurrency-with-async-await/</guid>
+      <guid>https://tinhpv.github.io/posts/ios/concurrency-with-async-await/</guid>
       <description>Overview 1func download(url: URL, completionHandler: @escaping (Data) -&amp;gt; ()) { 2 let task = URLSession.shared.dataTask(with: url) { data, _, error in 3 if let data = data { 4 completionHandler(data) 5 } 6 } 7 task.resume() 8} ⬇⬇⬇
 1func download(url: URL) async throws -&amp;gt; Data { 2 let result = try await URLSession.shared.data(from: url) 3 return result.0 // the response data 4} async code runs IN ORDER. No inversion as using completion handler async code can return value to its caller.</description>
     </item>

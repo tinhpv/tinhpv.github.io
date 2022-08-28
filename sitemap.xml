@@ -5,37 +5,34 @@
     <loc>https://tinhpv.github.io/categories/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/categories/common/</loc>
-    <lastmod>2022-08-23T00:41:36+07:00</lastmod>
-  </url><url>
     <loc>https://tinhpv.github.io/tags/dispatch-queue/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
     <loc>https://tinhpv.github.io/tags/gcd/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/posts/grand-central-dispatch/</loc>
+    <loc>https://tinhpv.github.io/posts/ios/grand-central-dispatch/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
     <loc>https://tinhpv.github.io/tags/grand-dispatch-queues/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/tags/ios/</loc>
+    <loc>https://tinhpv.github.io/categories/ios/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/categories/ios/</loc>
+    <loc>https://tinhpv.github.io/tags/ios-common/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
     <loc>https://tinhpv.github.io/tags/memory/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/tags/mutithread/</loc>
+    <loc>https://tinhpv.github.io/tags/multithread/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
     <loc>https://tinhpv.github.io/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/posts/memory-management/</loc>
+    <loc>https://tinhpv.github.io/posts/ios/memory-management/</loc>
     <lastmod>2022-08-23T00:41:36+07:00</lastmod>
   </url><url>
     <loc>https://tinhpv.github.io/posts/</loc>
@@ -47,26 +44,32 @@
     <loc>https://tinhpv.github.io/tags/actor/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
+    <loc>https://tinhpv.github.io/tags/common/</loc>
+    <lastmod>2022-08-21T00:41:36+07:00</lastmod>
+  </url><url>
     <loc>https://tinhpv.github.io/tags/concurrency/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/categories/concurrency/</loc>
+    <loc>https://tinhpv.github.io/posts/ios/concurrency-with-actor-swift/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/posts/concurrency-with-actor-swift/</loc>
+    <loc>https://tinhpv.github.io/posts/ios/concurrency-with-async-await/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/posts/concurrency-with-async-await/</loc>
+    <loc>https://tinhpv.github.io/posts/ios/race-condition-vs-data-race/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/posts/race-condition-vs-data-race/</loc>
+    <loc>https://tinhpv.github.io/tags/data-race/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/tags/datarace/</loc>
+    <loc>https://tinhpv.github.io/tags/race-condition/</loc>
     <lastmod>2022-08-21T00:41:36+07:00</lastmod>
   </url><url>
-    <loc>https://tinhpv.github.io/tags/racecondition/</loc>
-    <lastmod>2022-08-21T00:41:36+07:00</lastmod>
+    <loc>https://tinhpv.github.io/posts/ios/ios-app-launch-process/</loc>
+    <lastmod>2022-06-23T00:41:36+07:00</lastmod>
+  </url><url>
+    <loc>https://tinhpv.github.io/posts/ios/copy-on-write/</loc>
+    <lastmod>2022-03-10T00:41:36+07:00</lastmod>
   </url><url>
     <loc>https://tinhpv.github.io/tags/async/await/</loc>
   </url>

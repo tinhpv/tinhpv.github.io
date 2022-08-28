@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <script type="text/javascript" src="https://latest.cactus.chat/cactus.js"></script>
+  <link rel="stylesheet" href="https://latest.cactus.chat/style.css" type="text/css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title> Grand Central Dispatch | Note by Aaron</title>
+  <link rel = 'canonical' href = 'https://tinhpv.github.io/posts/ios/grand-central-dispatch/'>
+  <meta name="description" content="Hello there!
+
+My name is Phan Vũ-Tinh, can call me Aaron. I’m a Vietnamese mobile engineer, working mostly on iOS app native development. Besides, I’m also a runner, a travel enthusiast, a bookworm, a pluviophile, and ... a superhero movie die-hard fan :)
+
+I’m passionate about learning new things, deciphering challenging problems, breaking impasses, and creating delightful experiences.
+
+This blog was made to learn and to share.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+  <meta name="googlebot" content="index,follow,snippet,archive">
+  <meta property="og:title" content="Grand Central Dispatch" />
+<meta property="og:description" content="Overview GCD helps to write multi-threaded code, create threads and schedule tasks on those threads. Main building block: Dispatch Queues, 3 types of queues: Main dispatch queue (serial, pre-defined) drawing app&rsquo;s UI 🎨 handle events (e.g. user interaction) block it for too long, app will freeze 🥶 Global queue (concurrent, pre-defined) Private queue (can be serial/concurrent optionally, serial by default) Usage:
+Making a network call, which takes a long time in background queue When it completes, updating UI on main thread." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tinhpv.github.io/posts/ios/grand-central-dispatch/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-23T00:41:36+07:00" />
+<meta property="article:modified_time" content="2022-08-23T00:41:36+07:00" />
+
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Grand Central Dispatch"/>
+<meta name="twitter:description" content="Overview GCD helps to write multi-threaded code, create threads and schedule tasks on those threads. Main building block: Dispatch Queues, 3 types of queues: Main dispatch queue (serial, pre-defined) drawing app&rsquo;s UI 🎨 handle events (e.g. user interaction) block it for too long, app will freeze 🥶 Global queue (concurrent, pre-defined) Private queue (can be serial/concurrent optionally, serial by default) Usage:
+Making a network call, which takes a long time in background queue When it completes, updating UI on main thread."/>
+
+  
+  
+    
+  
+  
+  <link rel="stylesheet" href="https://tinhpv.github.io/css/styles.c05d68261bf086a9d7713c4f8a6215a3601608e267a816a7ee58f139b3d1aae51222aae2081c8e0c6bd35e1334773b7a16283022f31f92afd93bb37e5e822e66.css" integrity="sha512-wF1oJhvwhqnXcTxPimIVo2AWCOJnqBan7ljxObPRquUSIqriCByODGvTXhM0dzt6FigwIvMfkq/ZO7N&#43;XoIuZg=="> 
+
+  
+  
+  
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  
+
+  
+<link rel="icon" type="image/png" href="https://tinhpv.github.io/images/favicon.ico" />
+
+  
+  
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+  <div class="content index py4">
+
+  <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">All posts</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li>
+          <a class="icon" href=" https://tinhpv.github.io/posts/ios/memory-management/" aria-label="Previous">
+            <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
+          </a>
+        </li>
+        
+        
+        <li>
+          <a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+            <i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i>
+          </a>
+        </li>
+        <li>
+          <a class="icon" href="#" aria-label="Share">
+            <i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i>
+          </a>
+        </li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f" aria-label="Facebook">
+      <i class="fab fa-facebook " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&text=Grand%20Central%20Dispatch" aria-label="Twitter">
+      <i class="fab fa-twitter " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Linkedin">
+      <i class="fab fa-linkedin " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&is_video=false&description=Grand%20Central%20Dispatch" aria-label="Pinterest">
+      <i class="fab fa-pinterest " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Grand%20Central%20Dispatch&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f" aria-label="Email">
+      <i class="fas fa-envelope " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Pocket">
+      <i class="fab fa-get-pocket " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="reddit">
+      <i class="fab fa-reddit " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&name=Grand%20Central%20Dispatch&description=Overview%20GCD%20helps%20to%20write%20multi-threaded%20code%2c%20create%20threads%20and%20schedule%20tasks%20on%20those%20threads.%20Main%20building%20block%3a%20Dispatch%20Queues%2c%203%20types%20of%20queues%3a%20Main%20dispatch%20queue%20%28serial%2c%20pre-defined%29%20drawing%20app%26rsquo%3bs%20UI%20%f0%9f%8e%a8%20handle%20events%20%28e.g.%20user%20interaction%29%20block%20it%20for%20too%20long%2c%20app%20will%20freeze%20%f0%9f%a5%b6%20Global%20queue%20%28concurrent%2c%20pre-defined%29%20Private%20queue%20%28can%20be%20serial%2fconcurrent%20optionally%2c%20serial%20by%20default%29%20Usage%3a%0aMaking%20a%20network%20call%2c%20which%20takes%20a%20long%20time%20in%20background%20queue%20When%20it%20completes%2c%20updating%20UI%20on%20main%20thread." aria-label="Tumblr">
+      <i class="fab fa-tumblr " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&t=Grand%20Central%20Dispatch" aria-label="Hacker News">
+      <i class="fab fa-hacker-news " aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+    
+    <div id="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#serial-queue">Serial queue</a></li>
+        <li><a href="#syncasync-vs-concurrentserial">sync/async vs. concurrent/serial</a></li>
+        <li><a href="#priority-inversion">Priority Inversion</a></li>
+        <li><a href="#thread-explosion">Thread explosion</a></li>
+        <li><a href="#race-condition-solved-by-dispatch-barrier">Race Condition, Solved By Dispatch Barrier</a></li>
+        <li><a href="#dispatch-semaphore">Dispatch Semaphore</a></li>
+        <li><a href="#dispatchgroup">DispatchGroup</a></li>
+        <li><a href="#summary---pros-and-cons">Summary - pros and cons</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
+  </span>
+</div>
+
+
+  <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+      <h1 class="posttitle" itemprop="name headline">
+        Grand Central Dispatch
+      </h1>
+      <div class="meta">
+        
+        <div class="postdate">
+          
+          <time datetime="2022-08-23 00:41:36 &#43;0700 &#43;07" itemprop="datePublished">2022-08-23</time>
+          
+        </div>
+        
+        
+        <div class="article-read-time">
+          <i class="far fa-clock"></i>
+          
+          11 minute read
+        </div>
+        
+        
+        <div class="article-category">
+            <i class="fas fa-archive"></i>
+            
+            
+            <a class="category-link" href="/categories/ios">ios</a>
+            
+        </div>
+        
+        
+        <div class="article-tag">
+            <i class="fas fa-tag"></i>
+            
+            
+            <a class="tag-link" href="/tags/multithread" rel="tag">multithread</a>
+            
+             ,  
+            <a class="tag-link" href="/tags/dispatch-queue" rel="tag">dispatch-queue</a>
+            
+             ,  
+            <a class="tag-link" href="/tags/ios-common" rel="tag">ios-common</a>
+            
+        </div>
+        
+      </div>
+    </header>
+
+  
+    
+    <div class="content" itemprop="articleBody">
+      <h3 id="overview">Overview</h3>
+<ul>
+<li>GCD helps to write multi-threaded code, create threads and schedule tasks on those threads.</li>
+<li>Main building block: <strong>Dispatch Queues</strong>, 3 types of queues:
+<ul>
+<li><strong>Main dispatch queue</strong> (serial, pre-defined)
+<ul>
+<li>drawing app&rsquo;s UI 🎨</li>
+<li>handle events (e.g. user interaction)</li>
+<li>block it for too long, app will freeze 🥶</li>
+</ul>
+</li>
+<li><strong>Global queue</strong> (concurrent, pre-defined)</li>
+<li><strong>Private queue</strong> (can be serial/concurrent optionally, serial by default)</li>
+</ul>
+</li>
+</ul>
+<p><em>Usage:</em></p>
+<ul>
+<li>Making a network call, which takes a long time in background queue</li>
+<li>When it completes, updating UI on main thread.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>URLSession.shared.dataTask(with: url) { data, response, error <span style="color:#ff79c6">in</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    <span style="color:#ff79c6">if</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">data</span> = data {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>        DispatchQueue.main.async { 
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>            <span style="color:#ff79c6">self</span>.label.text = <span style="color:#8be9fd;font-style:italic">String</span>(data: data, encoding: .utf8)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span>}
+</span></span></code></pre></div><hr>
+<h3 id="serial-queue">Serial queue</h3>
+<ul>
+<li>a serial queue is created, and a task is dispatched to that queue, system creates one thread for it and it is independent with other serial queues.</li>
+<li>For example, 2 serial queues are created, started at the same time, will start running simultaneously.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">serial1</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;tinhpv.serial1&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">serial2</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;tinhpv.serial2&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>serial1.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>    <span style="color:#ff79c6">for</span> <span style="color:#ff79c6">_</span> <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>.&lt;<span style="color:#bd93f9">5</span> { print(<span style="color:#f1fa8c">&#34;🔵&#34;</span>) }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>serial2.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>    <span style="color:#ff79c6">for</span> <span style="color:#ff79c6">_</span> <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>.&lt;<span style="color:#bd93f9">5</span> { print(<span style="color:#f1fa8c">&#34;🔴&#34;</span>) }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span><span style="color:#6272a4">/// CONSOLE</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span><span style="color:#6272a4">/// Both queues here are serial, but the results are jumbled up because they execute concurrently in relation to each other</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span><span style="color:#6272a4">/// Their QoS level determines who will generally finish first (order not guaranteed)</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span>🔵
+</span></span></code></pre></div><ul>
+<li>want the first queue to be done first then the next queue execute their task? → use <code>sync</code>, but it will block the caller.</li>
+<li>another way? → use one single queue for 2 tasks.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span>serial1.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    <span style="color:#ff79c6">for</span> <span style="color:#ff79c6">_</span> <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>.&lt;<span style="color:#bd93f9">5</span> { print(<span style="color:#f1fa8c">&#34;🔵&#34;</span>) }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>serial1.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    <span style="color:#ff79c6">for</span> <span style="color:#ff79c6">_</span> <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>.&lt;<span style="color:#bd93f9">5</span> { print(<span style="color:#f1fa8c">&#34;🔴&#34;</span>) }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span><span style="color:#6272a4">/// CONSOLE</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>🔴
+</span></span></code></pre></div><hr>
+<h3 id="syncasync-vs-concurrentserial">sync/async vs. concurrent/serial</h3>
+<p>sync/async and concurrent/serial are two <strong>SEPARATE</strong> concepts.</p>
+<ul>
+<li>Synchronous vs. asynchronous is about when THE CALLER (the queue) can continue.
+<ul>
+<li><code>sync</code> <strong>block</strong> the <em>current queue</em> until that task completes. Once the current task is completes/returns, another task can be dispatched to the queue.</li>
+<li><code>async</code> execute <strong>asynchronously</strong> with respect to the <em>current queue</em>. Another task can be dispatched to the queue (BUT that task can be run or not depends on the queue is serial or concurrent)</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>► GCD optimizes performance by executing that task on the current thread (the caller.)
+► There is one exception however, which is when you submit a sync task to the main queue — doing so will always run the task on the main thread and not the caller.</p>
+</blockquote>
+<ul>
+<li>Concurrent vs. serial is about when the DISPATCHED TASK of the queue can run.
+<ul>
+<li><em>serial</em>
+<ul>
+<li>the task maybe cannot run immediately if the queue is already running some other tasks.</li>
+<li>NO more than 1 thread at a time.</li>
+<li>Guarantee order</li>
+</ul>
+</li>
+<li><em>concurrent</em>
+<ul>
+<li>multiple threads, system decides number of threads.</li>
+<li>Do not wait each other, order is not guaranteed.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><em>Example:</em></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">queue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;queue_label&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>queue.sync { <span style="color:#6272a4">// (1) submit a task synchronously into the queue</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    queue.sync { <span style="color:#6272a4">// (2)</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>        <span style="color:#6272a4">// dead lock ☠️</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>}
+</span></span></code></pre></div><p>☠️ why deadlock?</p>
+<ul>
+<li>first task is executing, which submits another task to the queue SYNCHRONOUSLY.</li>
+<li>&ldquo;SYNCHRONOUSLY&rdquo; = first task have to DONE so that the next task can be dispatched to the queue.</li>
+<li>so, second task DOES NOT return because it&rsquo;s waiting for the first task to be done.</li>
+<li>also, this is a SERIAL queue, have to execute tasks in order (first task have to be done &gt; second task could starts)</li>
+<li>the first can’t finish because it’s waiting for the second to finish, but the second can’t finish because it’s waiting for the first to finish.</li>
+</ul>
+<p>Another one:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">queue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;queue_label&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>queue.async { <span style="color:#6272a4">// ← (1) change this to async</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    queue.sync { <span style="color:#6272a4">// (2)</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>        <span style="color:#6272a4">// Still dead lock ☠️</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>}
+</span></span></code></pre></div><p>☠️ why still deadlock?</p>
+<ul>
+<li>now first task is dispatched ASYNCHONOUS to the queue and the queue executes this task.</li>
+<li>this task is dispatching another task to the queue but now it is SYNCHRONOUS.</li>
+<li>the queue is now is BLOCKED by the <code>sync</code> statement until the second completes, but the second task cannot be started because the queue is serial, wait for the first task, but the first task is not returned because the second task (its content) is not returned either!</li>
+</ul>
+<p>SOLUTION:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">queue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;queue_label&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>queue.sync { <span style="color:#6272a4">// ← sync or async is still working</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    queue.async { <span style="color:#6272a4">// ← make it async</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>        print(<span style="color:#f1fa8c">&#34;Inner!&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>}
+</span></span></code></pre></div><ul>
+<li>the first task was submitted async or sync is still working.</li>
+<li>in case the first task is sync, it blocks the queue until the content inside returned.</li>
+<li>as per content of the first task, it&rsquo;s dispatching asynchronously another task to the queue, that <code>async</code> statement can be returned immediately (that second task is successfully dispatched to the queue, but it is still not yet executed, because this queue is serial, have to wait for the first task to be done)</li>
+<li>so now the first task could be done and it is time for the second task</li>
+</ul>
+<p><em>Another example:</em></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">concurrentQueue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;concurrentQueue&#34;</span>, attributes: .concurrent)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>concurrentQueue.sync { <span style="color:#6272a4">// ← block the caller</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    <span style="color:#ff79c6">for</span> <span style="color:#ff79c6">_</span> <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>.&lt;<span style="color:#bd93f9">5</span> { print(<span style="color:#f1fa8c">&#34;🔵&#34;</span>) }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>concurrentQueue.async { <span style="color:#6272a4">// ← try to dispatch a task to the queue while it executing the sync statement</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>    <span style="color:#ff79c6">for</span> <span style="color:#ff79c6">_</span> <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>.&lt;<span style="color:#bd93f9">5</span> { print(<span style="color:#f1fa8c">&#34;🔴&#34;</span>) }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span><span style="color:#6272a4">/// CONSOLE</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span>🔴
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span>🔴
+</span></span></code></pre></div><hr>
+<h3 id="priority-inversion">Priority Inversion</h3>
+<ul>
+<li>a high priority task is prevented from running by a lower priority task</li>
+<li>often occurs when a high QoS queue shares a resources with a low QoS queue, and the low QoS queue gets a lock on that resource</li>
+</ul>
+<p>E.g:</p>
+<ul>
+<li>scenario: submit a task to low-QoS serial queue → submit another task that have high priority to that queue.</li>
+<li>problem: high-priority task waits for low-priority task to be finished</li>
+<li>resolve: temporarily increase the QoS of the queue of the low-priority task</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">starterQueue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;starter.queue&#34;</span>, qos: .userInteractive)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">utilityQueue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;utility.queue&#34;</span>, qos: .utility)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">backgroundQueue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;background.queue&#34;</span>, qos: .background)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>starterQueue.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    backgroundQueue.async { 
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>        output(color: .white)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>    utilityQueue.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        output(color: .blue)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>    backgroundQueue.sync {} <span style="color:#6272a4">// this one make priority inversion</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span><span style="color:#6272a4">/// CONSOLE</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span><span style="color:#6272a4">/// blue circles were printed last</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>⚪️
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span>⚪️
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span>⚪️
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span>⚪️
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span>⚪️
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span>🔵
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span>🔵
+</span></span></code></pre></div><ul>
+<li>the last <code>sync</code> statement run on the caller thread (starterQueue with top priority), it blocks the queue now (1)</li>
+<li>but another task that has been submited to the same queue but asynchronously (2)</li>
+<li>(1) have to wait for (2) (cuz starter is a serial queue) while (1) has higher priority than (2)</li>
+</ul>
+<p>→ GCD increases the QoS of the background queue to temporarily match the high QoS task (userInteractive)
+→ background queue is now having high priority than the other (utility)</p>
+<hr>
+<h3 id="thread-explosion">Thread explosion</h3>
+<ul>
+<li>try to submit tasks to a concurrent queue that is currently blocked (e.g. with a semaphore, sync, or some other way.)</li>
+<li>These tasks will run, but the system will likely end up spinning up new threads to accommodate these new tasks.</li>
+<li>Apple suggests starting with a serial queue per subsystem in your app, as each serial queue can only use one thread at a time.</li>
+</ul>
+<blockquote>
+<p>Serial queues are concurrent in relation to other queues, so you still get a performance benefit when you offload your work to a queue, even if it isn&rsquo;t concurrent.</p>
+</blockquote>
+<hr>
+<h3 id="race-condition-solved-by-dispatch-barrier">Race Condition, Solved By Dispatch Barrier</h3>
+<ul>
+<li>Readers-writers problem
+e.g: multiple threads access/modify the same resource (as an array, a file)</li>
+</ul>
+<p>One of solutions: using an isolation queue
+use <code>barrier flag</code> - whether it’s allowed to run concurrently with any other dispatched blocks to that queue</p>
+<ul>
+<li>submitting a task without barrier flag, the queue works as a normal concurrent queue</li>
+<li>when the barrier is executing, it is working as a serial queue.</li>
+<li>blocks any further tasks from executing until the barrier task is completed.</li>
+<li>use <code>barrier</code> flag on a serial queue is redundant 🤷‍♂️</li>
+</ul>
+<blockquote>
+<p>A block submitted with this flag will act as a barrier:</p>
+<ul>
+<li>All other blocks that were submitted BEFORE the barrier will finish and only then the barrier block will execute.</li>
+<li>All blocks submitted AFTER the barrier will not start until the barrier has finished.</li>
+</ul>
+</blockquote>
+<p>⛔️ <strong>Barriers do not work on global queues; they only affect private concurrent queues that you created</strong> ⛔️
+Why?</p>
+<blockquote>
+<p>→ Global queues are shared. You’re not the only one possibly availing yourself of these queues. Other subsystems in your app might be using them. The OS might, too. And barriers are a blocking operation, which could have serious impact if they started blocking unrelated systems. It seems exceeding prudent to me that GCD prevents one a bit of code in one subsystem from blocking all the other completely unrelated subsystems</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">isolation</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;queue.isolation&#34;</span>, attributes: .concurrent)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span><span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">_array</span> = [<span style="color:#bd93f9">1</span>,<span style="color:#bd93f9">2</span>,<span style="color:#bd93f9">3</span>,<span style="color:#bd93f9">4</span>,<span style="color:#bd93f9">5</span>]
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span><span style="color:#8be9fd;font-style:italic">var</span> <span style="color:#8be9fd;font-style:italic">threadSafeArray</span>: [<span style="color:#8be9fd;font-style:italic">Int</span>] {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>       <span style="color:#ff79c6">get</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>            <span style="color:#ff79c6">return</span> isolation.sync { <span style="color:#6272a4">// ← need to wait the result, if `async`, it returns immediately</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>                _array
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>            }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>        <span style="color:#ff79c6">set</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>            isolation.async(flags: .barrier) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>                <span style="color:#ff79c6">self</span>._array = newValue
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>            }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>}
+</span></span></code></pre></div><blockquote>
+<p>While this code will definitely work, using async for writes can be counter-intuitively be less performant. async calls will create a new thread, if there isn’t one immediately available to run the block. If your write call is faster than 1ms, it might be worth making it .sync, <a href="https://mobile.twitter.com/pedantcoder/status/1081657739451891713" title="according to Pierre Habouzit">according to Pierre Habouzit</a>, who worked on this code at Apple. As always, profile before optimizing!</p>
+</blockquote>
+<p>could use a serial queue without a barrier to solve the race condition
+but then we would lose the advantage of having concurrent read access to the array.</p>
+<hr>
+<h3 id="dispatch-semaphore">Dispatch Semaphore</h3>
+<ul>
+<li>control access to a shared resource by multiple threads</li>
+<li>block a thread for an amount of time, until a single from another thread is posted.</li>
+<li>thread-safe, can be triggered from anywhere</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span><span style="color:#6272a4">// on a background queue</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">semaphore</span> = DispatchSemaphore(value: <span style="color:#bd93f9">0</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>doSomeExpensiveWorkAsynchronously(completionBlock: {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>    semaphore.signal()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>})
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>semaphore.wait()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span><span style="color:#6272a4">//the expensive asynchronous work is now done</span>
+</span></span></code></pre></div><ul>
+<li>
+<p><code>value</code>, counter, the number of available resources</p>
+</li>
+<li>
+<p><code>wait()</code> → asking for accessing shared resource 🙋🏼‍♂️</p>
+<ul>
+<li><code>value--</code> decrement the value by 1</li>
+<li>if the <code>value</code> <em>after decrementing</em> &lt; 0, this thread will be block ❌ → don&rsquo;t call on main thread</li>
+<li>if the <code>value</code> <em>after incrementing</em> ≥ 0, no need to wait, go ahead and execute. 🏃🏻‍♀️</li>
+</ul>
+</li>
+<li>
+<p><code>signal()</code> → announce that we are done working with the shared resource</p>
+<ul>
+<li><code>value++</code>, increment the value by 1</li>
+<li>if the <code>value</code> <em>before incrementing</em> &lt; 0, it will wake the oldest thread that are waiting&hellip;</li>
+<li>if the <code>value</code> <em>before incrementing</em> ≥ 0, no thread is waiting</li>
+</ul>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">queue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;com.gcd.concurrent&#34;</span>, attributes: .concurrent)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">semaphore</span> = DispatchSemaphore(value: <span style="color:#bd93f9">3</span>) <span style="color:#6272a4">// ← allow to run 3 threads at a time.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span><span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.</span>..<span style="color:#bd93f9">15</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>   queue.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>      <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">songNumber</span> = i <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">1</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>      semaphore.wait()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>      print(<span style="color:#f1fa8c">&#34;Downloading song&#34;</span>, songNumber)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>      sleep(<span style="color:#bd93f9">2</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>      print(<span style="color:#f1fa8c">&#34;Downloaded song&#34;</span>, songNumber)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>      semaphore.signal()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>   }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span><span style="color:#6272a4">/// CONSOLE</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>Downloading song <span style="color:#bd93f9">1</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>Downloading song <span style="color:#bd93f9">2</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>Downloading song <span style="color:#bd93f9">4</span> 
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>Downloaded song <span style="color:#bd93f9">1</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>Downloaded song <span style="color:#bd93f9">4</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span>Downloaded song <span style="color:#bd93f9">2</span> <span style="color:#6272a4">// done first 3</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span>Downloading song <span style="color:#bd93f9">3</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span>Downloading song <span style="color:#bd93f9">6</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span>Downloading song <span style="color:#bd93f9">5</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span>Downloaded song <span style="color:#bd93f9">3</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span>Downloaded song <span style="color:#bd93f9">5</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span>Downloaded song <span style="color:#bd93f9">6</span> <span style="color:#6272a4">// done next 3 songs</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span>Downloading song <span style="color:#bd93f9">8</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span>Downloading song <span style="color:#bd93f9">9</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span>Downloading song <span style="color:#bd93f9">7</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span>Downloaded song <span style="color:#bd93f9">7</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span>Downloaded song <span style="color:#bd93f9">9</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span><span>Downloaded song <span style="color:#bd93f9">8</span> <span style="color:#6272a4">// ... bla bla bla</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span>Downloading song <span style="color:#bd93f9">10</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span><span>Downloading song <span style="color:#bd93f9">12</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span><span>Downloading song <span style="color:#bd93f9">11</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span><span>Downloaded song <span style="color:#bd93f9">11</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span>Downloaded song <span style="color:#bd93f9">10</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span><span>Downloaded song <span style="color:#bd93f9">12</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span>Downloading song <span style="color:#bd93f9">13</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span><span>Downloading song <span style="color:#bd93f9">15</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span><span>Downloading song <span style="color:#bd93f9">14</span>
+</span></span></code></pre></div><p><strong>NOTE:</strong></p>
+<ul>
+<li>⚠️ <strong>NEVER</strong> call <code>wait()</code> on MAIN THREAD → app will freeze 🥶 only from background threads.</li>
+<li>can pass a timeout to <code>wait()</code></li>
+<li>can help in limiting the number of concurrent blocks:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">LimitedWorker</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">serialQueue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;com.khanlou.serial.queue&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">concurrentQueue</span> = DispatchQueue(label: <span style="color:#f1fa8c">&#34;com.khanlou.concurrent.queue&#34;</span>, attributes: .concurrent)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">semaphore</span>: DispatchSemaphore
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    <span style="color:#8be9fd;font-style:italic">init</span>(limit: <span style="color:#8be9fd;font-style:italic">Int</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>        semaphore = DispatchSemaphore(value: limit)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>    <span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">enqueue</span>(task: @escaping () -&gt; ()) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>        serialQueue.async(execute: {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>            <span style="color:#ff79c6">self</span>.semaphore.wait()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span>            <span style="color:#ff79c6">self</span>.concurrentQueue.async(execute: {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span>                task()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span>                <span style="color:#ff79c6">self</span>.semaphore.signal()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span>            })
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span>        })
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span>}
+</span></span></code></pre></div><ul>
+<li>a concurrent queue for executing the user’s tasks, allowing as many concurrently executing tasks as GCD will allow us in that queue</li>
+<li>a serial queue and acts as &ldquo;a gatekeeper&rdquo; to the concurrent queue.</li>
+<li><code>wait</code> on the semaphore in the serial queue, which means that we&rsquo;ll have AT MOST one blocked thread when we reach maximum executing blocks on the concurrent queue.</li>
+<li>Any other tasks the user enqueues will sit on the serial queue waiting to be executed, and <strong>won&rsquo;t cause new threads to be started.</strong></li>
+</ul>
+<hr>
+<h3 id="dispatchgroup">DispatchGroup</h3>
+<p>→ helpful when execute some tasks, want to wait for ALL tasks to be completed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span>llet backgroundQueue = DispatchQueue(label: <span style="color:#f1fa8c">&#34;com.concurrent.queue&#34;</span>, attributes: .concurrent)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#8be9fd;font-style:italic">group</span> = DispatchGroup()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span><span style="color:#ff79c6">for</span> item <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">1.</span>..<span style="color:#bd93f9">5</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    backgroundQueue.async(group: group) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>        sleep(<span style="color:#8be9fd;font-style:italic">UInt32</span>(item))
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>group.notify(queue: .main) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>    print(<span style="color:#f1fa8c">&#34;all tasks have been done! ✅&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>}
+</span></span></code></pre></div><p>more manual way with <code>enter()</code> and <code>leave()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span>...
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span><span style="color:#ff79c6">for</span> item <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">1.</span>..<span style="color:#bd93f9">5</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span>    group.enter()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span>    backgroundQueue.async {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span>        sleep(<span style="color:#8be9fd;font-style:italic">UInt32</span>(item))
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span>        group.leave()
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span>group.notify(queue: .main) {
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span>    print(<span style="color:#f1fa8c">&#34;all tasks have been done! ✅&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span>}
+</span></span></code></pre></div><ul>
+<li>group also maintain a thread-safe, internal counter that you can manipulate</li>
+<li>this counter is to make sure multiple long running tasks are ALL COMPLETED before executing a completion block</li>
+<li><code>enter()</code>, increment the counte, <code>leave()</code>, decrement the counter</li>
+<li>can use <code>wait()</code> instead of <code>notify()</code>, but it will block the thread until ALL tasks finished. So, DON&rsquo;T call <code>wait</code> on main thread.</li>
+</ul>
+<hr>
+<h3 id="summary---pros-and-cons">Summary - pros and cons</h3>
+<ul>
+<li>to make the app highly responsive.</li>
+<li>on OSX and iOS, the main loop, called RunLoop on the main thread, should not be blocked - only the main thread can update UI. When it is blocked, UI is not updated and the same still image is displayed for quite a long time → frozen 🥶</li>
+</ul>
+<p>BUT&hellip;</p>
+<ul>
+<li>multiple threads compete to update the same resource, it causes inconsistent data (called a <strong>race condition</strong>)</li>
+<li>multiple threads await an event at the same time (<strong>deadlock</strong>)</li>
+<li>thread explosion, when too many threads are used, the application memory becomes short</li>
+</ul>
+<p>Learned from:</p>
+<ul>
+<li><a href="https://gist.github.com/tclementdev/6af616354912b0347cdf6db159c37057">https://gist.github.com/tclementdev/6af616354912b0347cdf6db159c37057</a> (tips on GCD)</li>
+<li><a href="https://khanlou.com/2016/04/the-GCD-handbook/">https://khanlou.com/2016/04/the-GCD-handbook/</a></li>
+<li><a href="https://www.avanderlee.com/swift/concurrent-serial-dispatchqueue/">https://www.avanderlee.com/swift/concurrent-serial-dispatchqueue/</a></li>
+<li><a href="https://www.donnywals.com/understanding-how-dispatchqueue-sync-can-cause-deadlocks/">https://www.donnywals.com/understanding-how-dispatchqueue-sync-can-cause-deadlocks/</a></li>
+<li><a href="https://medium.com/@almalehdev/concurrency-visualized-part-2-serial-vs-concurrent-fd04e32c20a9">https://medium.com/@almalehdev/concurrency-visualized-part-2-serial-vs-concurrent-fd04e32c20a9</a></li>
+<li><a href="https://medium.com/@almalehdev/concurrency-visualized-part-3-pitfalls-and-conclusion-2b893e04b97d">https://medium.com/@almalehdev/concurrency-visualized-part-3-pitfalls-and-conclusion-2b893e04b97d</a></li>
+<li><a href="https://developer.apple.com/forums/thread/106319">https://developer.apple.com/forums/thread/106319</a></li>
+<li><a href="https://stackoverflow.com/questions/71233769/why-concurrent-queue-with-sync-act-like-serial-queue">https://stackoverflow.com/questions/71233769/why-concurrent-queue-with-sync-act-like-serial-queue</a></li>
+<li><a href="https://stackoverflow.com/a/58238703">https://stackoverflow.com/a/58238703</a> (barrier, Rob)</li>
+<li><a href="https://stackoverflow.com/a/54101127">https://stackoverflow.com/a/54101127</a> (barrier)</li>
+<li><a href="https://medium.com/@roykronenfeld/semaphores-in-swift-e296ea80f860">https://medium.com/@roykronenfeld/semaphores-in-swift-e296ea80f860</a> (semaphore)</li>
+</ul>
+
+    </div>
+  </article>
+
+  
+  
+
+
+
+
+  <div class="blog-post-comments">
+    
+      <div id="cactus-comments-thread">
+  <script>
+  initComments({
+    node: document.getElementById("cactus-comments-thread"),
+    defaultHomeserverUrl: 'https:\/\/matrix.cactus.chat:8448',
+    serverName: 'cactus.chat',
+    siteName: "notebyaaron",
+    commentSectionId: "\/posts\/ios\/grand-central-dispatch\/"
+  })
+</script>
+</div>
+
+    
+  </div>
+
+
+
+  <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/posts">All posts</a></li>
+         
+          <li><a href="/tags">Tags</a></li>
+         
+          <li><a href="/categories">Categories</a></li>
+         
+          <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </div>
+
+    
+    <div id="toc-footer" style="display: none">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#serial-queue">Serial queue</a></li>
+        <li><a href="#syncasync-vs-concurrentserial">sync/async vs. concurrent/serial</a></li>
+        <li><a href="#priority-inversion">Priority Inversion</a></li>
+        <li><a href="#thread-explosion">Thread explosion</a></li>
+        <li><a href="#race-condition-solved-by-dispatch-barrier">Race Condition, Solved By Dispatch Barrier</a></li>
+        <li><a href="#dispatch-semaphore">Dispatch Semaphore</a></li>
+        <li><a href="#dispatchgroup">DispatchGroup</a></li>
+        <li><a href="#summary---pros-and-cons">Summary - pros and cons</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+    
+
+    <div id="share-footer" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f" aria-label="Facebook">
+      <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&text=Grand%20Central%20Dispatch" aria-label="Twitter">
+      <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Linkedin">
+      <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&is_video=false&description=Grand%20Central%20Dispatch" aria-label="Pinterest">
+      <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Grand%20Central%20Dispatch&body=Check out this article: https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f" aria-label="Email">
+      <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="Pocket">
+      <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&title=Grand%20Central%20Dispatch" aria-label="reddit">
+      <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&name=Grand%20Central%20Dispatch&description=Overview%20GCD%20helps%20to%20write%20multi-threaded%20code%2c%20create%20threads%20and%20schedule%20tasks%20on%20those%20threads.%20Main%20building%20block%3a%20Dispatch%20Queues%2c%203%20types%20of%20queues%3a%20Main%20dispatch%20queue%20%28serial%2c%20pre-defined%29%20drawing%20app%26rsquo%3bs%20UI%20%f0%9f%8e%a8%20handle%20events%20%28e.g.%20user%20interaction%29%20block%20it%20for%20too%20long%2c%20app%20will%20freeze%20%f0%9f%a5%b6%20Global%20queue%20%28concurrent%2c%20pre-defined%29%20Private%20queue%20%28can%20be%20serial%2fconcurrent%20optionally%2c%20serial%20by%20default%29%20Usage%3a%0aMaking%20a%20network%20call%2c%20which%20takes%20a%20long%20time%20in%20background%20queue%20When%20it%20completes%2c%20updating%20UI%20on%20main%20thread." aria-label="Tumblr">
+      <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2ftinhpv.github.io%2fposts%2fios%2fgrand-central-dispatch%2f&t=Grand%20Central%20Dispatch" aria-label="Hacker News">
+      <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      
+        <a id="menu-toggle" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;" aria-label="Menu">
+          <i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="toc-toggle" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;" aria-label="TOC">
+          <i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share-toggle" class="icon" href="#" onclick="$('#share-footer').toggle();return false;" aria-label="Share">
+          <i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+          <i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+
+  <footer id="footer">
+  <div class="footer-left">
+    Copyright  &copy; 2022  Note by Aaron 
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">All posts</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/categories/ios/"> iOS</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+
+  </div>
+</body>
+
+<link rel="stylesheet" href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+
+<script src=/js/code-copy.js></script>
+
+
+
+
+</html>

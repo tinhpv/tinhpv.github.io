@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>common on Aaron Phan</title>
-    <link>https://tinhpv.github.io/tags/common/</link>
-    <description>Recent content in common on Aaron Phan</description>
+    <title>user-defaults on Aaron Phan</title>
+    <link>https://tinhpv.github.io/tags/user-defaults/</link>
+    <description>Recent content in user-defaults on Aaron Phan</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 21 Aug 2022 00:41:36 +0700</lastBuildDate><atom:link href="https://tinhpv.github.io/tags/common/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Data Race with Race Condition? Difference and Solution for both</title>
-      <link>https://tinhpv.github.io/posts/ios/race-condition-vs-data-race/</link>
-      <pubDate>Sun, 21 Aug 2022 00:41:36 +0700</pubDate>
-      
-      <guid>https://tinhpv.github.io/posts/ios/race-condition-vs-data-race/</guid>
-      <description>What are they? Matters? 🤔🆘 Data Race and Race Condition are DIFFERENT
-Data-Race → MORE than 1 thread access to shared-resource (can be a variable or object) and AT LEAST 1 thread tries to modify that resource Race-Condition → Order of threads&amp;rsquo; execution leads to wrong program behavior Many race conditions are due to data races, and many data races lead to race conditions. Can have race conditions without data races and data races without race conditions.</description>
-    </item>
-    
+    <lastBuildDate>Wed, 20 Jul 2022 00:41:36 +0700</lastBuildDate><atom:link href="https://tinhpv.github.io/tags/user-defaults/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Note on UserDefaults, organization of preferences</title>
       <link>https://tinhpv.github.io/posts/ios/user-defaults/</link>
